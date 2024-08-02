@@ -28,6 +28,14 @@ addf pid.zl.do-pid-calcs       servo-thread
 addf pid.s.do-pid-calcs       servo-thread
 addf hm2_5i24.0.write         servo-thread
 
+
+setp hm2_5i24.0.gpio.040.is_output true
+setp hm2_5i24.0.gpio.042.is_output true
+setp hm2_5i24.0.gpio.044.is_output true
+setp hm2_5i24.0.gpio.040.invert_output true
+setp hm2_5i24.0.gpio.042.invert_output true
+setp hm2_5i24.0.gpio.044.invert_output true
+
 # ******************
 #   AXIS X JOINT 0
 # ******************
@@ -78,6 +86,7 @@ setp   hm2_5i24.0.pwmgen.00.offset-mode 1
 
 net x-output                             => hm2_5i24.0.pwmgen.00.value
 net x-enable     joint.0.amp-enable-out  => hm2_5i24.0.pwmgen.00.enable
+net x-enable =>  hm2_5i24.0.gpio.040.out
 net x-pos-rawcounts        <=  hm2_5i24.0.encoder.00.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -156,6 +165,7 @@ setp   hm2_5i24.0.pwmgen.02.offset-mode 1
 
 net y-output                             => hm2_5i24.0.pwmgen.02.value
 net y-enable     joint.1.amp-enable-out  => hm2_5i24.0.pwmgen.02.enable
+net y-enable => hm2_5i24.0.gpio.042.out
 net y-pos-rawcounts        <=  hm2_5i24.0.encoder.01.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -234,6 +244,7 @@ setp   hm2_5i24.0.pwmgen.04.offset-mode 1
 
 net z-output                             => hm2_5i24.0.pwmgen.04.value
 net z-enable     joint.2.amp-enable-out  => hm2_5i24.0.pwmgen.04.enable
+net z-enable => hm2_5i24.0.gpio.044.out
 net z-pos-rawcounts        <=  hm2_5i24.0.encoder.02.rawcounts
 
 # ---Encoder feedback signals/setup---
