@@ -7,18 +7,15 @@ loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS base_thread_fp=1
 loadrt hostmot2
 loadrt hm2_pci config="num_encoders=6 num_pwmgens=6" 
-loadrt sum2 count=6
+loadrt sum2 count=3
 addf sum2.0 servo-thread
 addf sum2.1 servo-thread
 addf sum2.2 servo-thread
-addf sum2.3 servo-thread
-addf sum2.4 servo-thread
-addf sum2.5 servo-thread
 
 setp    hm2_5i24.0.pwmgen.pwm_frequency 15500
 setp    hm2_5i24.0.pwmgen.pdm_frequency 15500
 setp    hm2_5i24.0.watchdog.timeout_ns 5000000
-loadrt pid names=pid.x,pid.y,pid.z,pid.s,pid.xl,pid.yl
+loadrt pid names=pid.x,pid.y,pid.s,pid.xl,pid.yl,pid.zl
 
 addf hm2_5i24.0.read          servo-thread
 addf motion-command-handler   servo-thread
@@ -26,19 +23,14 @@ addf motion-controller        servo-thread
 addf pid.x.do-pid-calcs       servo-thread
 addf pid.xl.do-pid-calcs       servo-thread
 addf pid.y.do-pid-calcs       servo-thread
-addf pid.z.do-pid-calcs       servo-thread
+addf pid.yl.do-pid-calcs       servo-thread
+addf pid.zl.do-pid-calcs       servo-thread
 addf pid.s.do-pid-calcs       servo-thread
 addf hm2_5i24.0.write         servo-thread
-# setp hm2_5i24.0.dpll.01.timer-us -50
-# stepgen setp hm2_5i24.0.stepgen.timer-number 1
 
-# external output signals
-
-# external input signals
-
-#*******************
-#  AXIS X JOINT 0
-#*******************
+# ******************
+#   AXIS X JOINT 0
+# ******************
 
 setp   pid.x.Pgain     [JOINT_0]P
 setp   pid.x.Igain     0
@@ -50,12 +42,10 @@ setp   pid.x.FF2       [JOINT_0]FF2
 setp   pid.x.deadband  [JOINT_0]DEADBAND
 setp   pid.x.maxoutput [JOINT_0]MAX_OUTPUT
 setp   pid.x.error-previous-target true
-#setp   pid.x.maxerror  [JOINT_0]MAX_ERROR
 
 net x-enable        =>  pid.x.enable
 net x-pos-mtr       =>  pid.x.feedback
 net x-output-mtr    <=  pid.x.output
-
 
 setp   pid.xl.Pgain     [JOINT_0]P_LIN
 setp   pid.xl.Igain     [JOINT_0]I_LIN
@@ -65,21 +55,16 @@ setp   pid.xl.FF0       0
 setp   pid.xl.FF1       0
 setp   pid.xl.FF2       0
 setp   pid.xl.deadband  [JOINT_0]DEADBAND
-setp   pid.xl.maxoutput [JOINT_0]MAX_OUTPUT_LINEAR
+setp   pid.xl.maxoutput [JOINT_0]MAX_OUTPUT
 setp   pid.xl.error-previous-target true
-#setp   pid.xl.maxerror  [JOINT_0]MAX_ERROR_LINEAR
 
 net x-enable        => pid.xl.enable
 net x-pos-lin       => pid.xl.feedback
 net x-output-lin    <= pid.xl.output
 
-#setp sum2.4.gain0 -1
-#setp sum2.4.gain1 -1
-
-net x-output-lin => sum2.4.in0
-net x-output-mtr => sum2.4.in1
-net x-output <= sum2.4.out
-
+net x-output-lin => sum2.0.in0
+net x-output-mtr => sum2.0.in1
+net x-output <= sum2.0.out
 
 net x-pos-cmd <= joint.0.motor-pos-cmd 
 net x-pos-cmd => pid.xl.command
@@ -94,7 +79,6 @@ setp   hm2_5i24.0.pwmgen.00.offset-mode 1
 net x-output                             => hm2_5i24.0.pwmgen.00.value
 net x-enable     joint.0.amp-enable-out  => hm2_5i24.0.pwmgen.00.enable
 net x-pos-rawcounts        <=  hm2_5i24.0.encoder.00.rawcounts
-
 
 # ---Encoder feedback signals/setup---
 
@@ -122,18 +106,12 @@ net x-vel-lin <= hm2_5i24.0.encoder.00.velocity
 net x-index-enable    joint.0.index-enable  <=>  hm2_5i24.0.encoder.00.index-enable
 net x-pos-lin  =>  joint.0.motor-pos-fb
 
-# ---setup home / limit switch signals---
-
-net x-home-sw     =>  joint.0.home-sw-in
-net x-neg-limit     =>  joint.0.neg-lim-sw-in
-net x-pos-limit     =>  joint.0.pos-lim-sw-in
-
-#*******************
-#  AXIS Y JOINT 1
-#*******************
+# ******************
+#   AXIS Y JOINT 1
+# ******************
 
 setp   pid.y.Pgain     [JOINT_1]P
-setp   pid.y.Igain     [JOINT_1]I
+setp   pid.y.Igain     0
 setp   pid.y.Dgain     [JOINT_1]D
 setp   pid.y.bias      [JOINT_1]BIAS
 setp   pid.y.FF0       [JOINT_1]FF0
@@ -142,131 +120,147 @@ setp   pid.y.FF2       [JOINT_1]FF2
 setp   pid.y.deadband  [JOINT_1]DEADBAND
 setp   pid.y.maxoutput [JOINT_1]MAX_OUTPUT
 setp   pid.y.error-previous-target true
-# stepgen # This setting is to limit bogus stepgen
-# velocity corrections caused by position
-# feedback sample time jitter.
-setp   pid.y.maxerror 0.000500
 
-net y-index-enable  =>  pid.y.index-enable
 net y-enable        =>  pid.y.enable
-net y-pos-cmd       =>  pid.y.command
-net y-pos-fb        =>  pid.y.feedback
-net y-output        <=  pid.y.output
+net y-pos-mtr       =>  pid.y.feedback
+net y-output-mtr    <=  pid.y.output
 
-# Step Gen signals/setup
+setp   pid.yl.Pgain     [JOINT_1]P_LIN
+setp   pid.yl.Igain     [JOINT_1]I_LIN
+setp   pid.yl.Dgain     [JOINT_1]D_LIN
+setp   pid.yl.bias      0
+setp   pid.yl.FF0       0
+setp   pid.yl.FF1       0
+setp   pid.yl.FF2       0
+setp   pid.yl.deadband  [JOINT_1]DEADBAND
+setp   pid.yl.maxoutput [JOINT_1]MAX_OUTPUT
+setp   pid.yl.error-previous-target true
 
-# stepgen #setp   hm2_5i24.0.stepgen.09.dirsetup        [JOINT_1]DIRSETUP
-# stepgen #setp   hm2_5i24.0.stepgen.09.dirhold         [JOINT_1]DIRHOLD
-# stepgen #setp   hm2_5i24.0.stepgen.09.steplen         [JOINT_1]STEPLEN
-# stepgen #setp   hm2_5i24.0.stepgen.09.stepspace       [JOINT_1]STEPSPACE
-# stepgen #setp   hm2_5i24.0.stepgen.09.position-scale  [JOINT_1]STEP_SCALE
-# stepgen #setp   hm2_5i24.0.stepgen.09.step_type        0
-# stepgen #setp   hm2_5i24.0.stepgen.09.control-type     1
-# stepgen #setp   hm2_5i24.0.stepgen.09.maxaccel         [JOINT_1]STEPGEN_MAXACCEL
-# stepgen #setp   hm2_5i24.0.stepgen.09.maxvel           [JOINT_1]STEPGEN_MAXVEL
+net y-enable        => pid.yl.enable
+net y-pos-lin       => pid.yl.feedback
+net y-output-lin    <= pid.yl.output
 
-# ---closedloop stepper signals---
+net y-output-lin => sum2.1.in0
+net y-output-mtr => sum2.1.in1
+net y-output <= sum2.1.out
 
-net y-pos-cmd    <= joint.1.motor-pos-cmd
-net y-vel-cmd    <= joint.1.vel-cmd
-# stepgen net y-output     => hm2_5i24.0.stepgen.09.velocity-cmd
-# stepgen net y-pos-fb     <= hm2_5i24.0.stepgen.09.position-fb
-net y-pos-fb     => joint.1.motor-pos-fb
-net y-enable     <= joint.1.amp-enable-out
-# stepgen net y-enable     => hm2_5i24.0.stepgen.09.enable
+net y-pos-cmd <= joint.1.motor-pos-cmd 
+net y-pos-cmd => pid.yl.command
+net y-pos-cmd => pid.y.command
+
+# ---PWM Generator signals/setup---
+
+setp   hm2_5i24.0.pwmgen.02.output-type 1
+setp   hm2_5i24.0.pwmgen.02.scale  [JOINT_1]OUTPUT_SCALE
+setp   hm2_5i24.0.pwmgen.02.offset-mode 1
+
+net y-output                             => hm2_5i24.0.pwmgen.02.value
+net y-enable     joint.1.amp-enable-out  => hm2_5i24.0.pwmgen.02.enable
+net y-pos-rawcounts        <=  hm2_5i24.0.encoder.01.rawcounts
 
 # ---Encoder feedback signals/setup---
+
+setp    hm2_5i24.0.encoder.04.counter-mode 0
+setp    hm2_5i24.0.encoder.04.filter 1
+setp    hm2_5i24.0.encoder.04.index-invert 0
+setp    hm2_5i24.0.encoder.04.index-mask 0
+setp    hm2_5i24.0.encoder.04.index-mask-invert 0
+setp    hm2_5i24.0.encoder.04.scale  [JOINT_1]ENCODER_MTR_SCALE
 
 setp    hm2_5i24.0.encoder.01.counter-mode 0
 setp    hm2_5i24.0.encoder.01.filter 1
 setp    hm2_5i24.0.encoder.01.index-invert 0
 setp    hm2_5i24.0.encoder.01.index-mask 0
 setp    hm2_5i24.0.encoder.01.index-mask-invert 0
-setp    hm2_5i24.0.encoder.01.scale  [JOINT_1]ENCODER_SCALE
+setp    hm2_5i24.0.encoder.01.scale  [JOINT_1]ENCODER_LIN_SCALE
 
-net y-pos-fb               <=  hm2_5i24.0.encoder.01.position
-net y-vel-fb               <=  hm2_5i24.0.encoder.01.velocity
-net y-pos-fb               =>  joint.1.motor-pos-fb
+net y-pos-mtr <=  hm2_5i24.0.encoder.04.position
+net y-vel-mtr <=  hm2_5i24.0.encoder.04.velocity
+net y-index-enable    joint.1.index-enable  <=>  hm2_5i24.0.encoder.04.index-enable
+#net y-pos-mtr  =>  joint.1.motor-pos-fb
+
+net y-pos-lin <= hm2_5i24.0.encoder.01.position
+net y-vel-lin <= hm2_5i24.0.encoder.01.velocity
 net y-index-enable    joint.1.index-enable  <=>  hm2_5i24.0.encoder.01.index-enable
-net y-pos-rawcounts        <=  hm2_5i24.0.encoder.01.rawcounts
-
-net y-pos-mtr  hm2_5i24.0.encoder.04.position
-net y-vel-mtr  hm2_5i24.0.encoder.04.velocity
-
-# ---setup home / limit switch signals---
-
-net y-home-sw     =>  joint.1.home-sw-in
-net y-neg-limit     =>  joint.1.neg-lim-sw-in
-net y-pos-limit     =>  joint.1.pos-lim-sw-in
+net y-pos-lin  =>  joint.1.motor-pos-fb
 
 #*******************
 #  AXIS Z JOINT 2
 #*******************
 
-setp   pid.z.Pgain     [JOINT_2]P
-setp   pid.z.Igain     [JOINT_2]I
-setp   pid.z.Dgain     [JOINT_2]D
-setp   pid.z.bias      [JOINT_2]BIAS
-setp   pid.z.FF0       [JOINT_2]FF0
-setp   pid.z.FF1       [JOINT_2]FF1
-setp   pid.z.FF2       [JOINT_2]FF2
-setp   pid.z.deadband  [JOINT_2]DEADBAND
-setp   pid.z.maxoutput [JOINT_2]MAX_OUTPUT
-setp   pid.z.error-previous-target true
-# stepgen # This setting is to limit bogus stepgen
-# velocity corrections caused by position
-# feedback sample time jitter.
-setp   pid.z.maxerror 0.000500
+#setp   pid.z.Pgain     [JOINT_2]P
+#setp   pid.z.Igain     0
+#setp   pid.z.Dgain     [JOINT_2]D
+#setp   pid.z.bias      [JOINT_2]BIAS
+#setp   pid.z.FF0       [JOINT_2]FF0
+#setp   pid.z.FF1       [JOINT_2]FF1
+#setp   pid.z.FF2       [JOINT_2]FF2
+#setp   pid.z.deadband  [JOINT_2]DEADBAND
+#setp   pid.z.maxoutput [JOINT_2]MAX_OUTPUT
+#setp   pid.z.error-previous-target true
 
-net z-index-enable  =>  pid.z.index-enable
-net z-enable        =>  pid.z.enable
-net z-pos-cmd       =>  pid.z.command
-net z-pos-fb        =>  pid.z.feedback
-net z-output        <=  pid.z.output
+#net z-enable        =>  pid.z.enable
+#net z-pos-mtr       =>  pid.z.feedback
+#net z-output-mtr    <=  pid.z.output
 
-# Step Gen signals/setup
+setp   pid.zl.Pgain     [JOINT_2]P
+setp   pid.zl.Igain     [JOINT_2]I
+setp   pid.zl.Dgain     [JOINT_2]D
+setp   pid.zl.bias      0
+setp   pid.zl.FF0       0
+setp   pid.zl.FF1       0
+setp   pid.zl.FF2       0
+setp   pid.zl.deadband  [JOINT_2]DEADBAND
+setp   pid.zl.maxoutput [JOINT_2]MAX_OUTPUT
+setp   pid.zl.error-previous-target true
 
-# stepgen setp   hm2_5i24.0.stepgen.06.dirsetup        [JOINT_2]DIRSETUP
-# stepgen setp   hm2_5i24.0.stepgen.06.dirhold         [JOINT_2]DIRHOLD
-# stepgen setp   hm2_5i24.0.stepgen.06.steplen         [JOINT_2]STEPLEN
-# stepgen setp   hm2_5i24.0.stepgen.06.stepspace       [JOINT_2]STEPSPACE
-# stepgen setp   hm2_5i24.0.stepgen.06.position-scale  [JOINT_2]STEP_SCALE
-# stepgen setp   hm2_5i24.0.stepgen.06.step_type        0
-# stepgen setp   hm2_5i24.0.stepgen.06.control-type     1
-# stepgen setp   hm2_5i24.0.stepgen.06.maxaccel         [JOINT_2]STEPGEN_MAXACCEL
-# stepgen setp   hm2_5i24.0.stepgen.06.maxvel           [JOINT_2]STEPGEN_MAXVEL
+net z-enable        => pid.zl.enable
+net z-pos-lin       => pid.zl.feedback
+net z-output-lin    <= pid.zl.output
 
-# ---closedloop stepper signals---
+net z-output-lin => sum2.2.in0
+#net z-output-mtr => sum2.2.in1
+net z-output <= sum2.2.out
 
-net z-pos-cmd    <= joint.2.motor-pos-cmd
-net z-vel-cmd    <= joint.2.vel-cmd
-# stepgen net z-output     => hm2_5i24.0.stepgen.06.velocity-cmd
-# stepgen net z-pos-fb     <= hm2_5i24.0.stepgen.06.position-fb
-net z-pos-fb     => joint.2.motor-pos-fb
-net z-enable     <= joint.2.amp-enable-out
-# stepgen net z-enable     => hm2_5i24.0.stepgen.06.enable
+net z-pos-cmd <= joint.2.motor-pos-cmd 
+net z-pos-cmd => pid.zl.command
+#net z-pos-cmd => pid.z.command
+
+# ---PWM Generator signals/setup---
+
+setp   hm2_5i24.0.pwmgen.04.output-type 1
+setp   hm2_5i24.0.pwmgen.04.scale  [JOINT_2]OUTPUT_SCALE
+setp   hm2_5i24.0.pwmgen.04.offset-mode 1
+
+net z-output                             => hm2_5i24.0.pwmgen.04.value
+net z-enable     joint.2.amp-enable-out  => hm2_5i24.0.pwmgen.04.enable
+net z-pos-rawcounts        <=  hm2_5i24.0.encoder.02.rawcounts
 
 # ---Encoder feedback signals/setup---
+
+#setp    hm2_5i24.0.encoder.05.counter-mode 0
+#setp    hm2_5i24.0.encoder.05.filter 1
+#setp    hm2_5i24.0.encoder.05.index-invert 0
+#setp    hm2_5i24.0.encoder.05.index-mask 0
+#setp    hm2_5i24.0.encoder.05.index-mask-invert 0
+#setp    hm2_5i24.0.encoder.05.scale  [JOINT_2]ENCODER_MTR_SCALE
 
 setp    hm2_5i24.0.encoder.02.counter-mode 0
 setp    hm2_5i24.0.encoder.02.filter 1
 setp    hm2_5i24.0.encoder.02.index-invert 0
 setp    hm2_5i24.0.encoder.02.index-mask 0
 setp    hm2_5i24.0.encoder.02.index-mask-invert 0
-setp    hm2_5i24.0.encoder.02.scale  [JOINT_2]ENCODER_SCALE
+setp    hm2_5i24.0.encoder.02.scale  [JOINT_2]ENCODER_LIN_SCALE
 
-net z-pos-fb               <=  hm2_5i24.0.encoder.02.position
-net z-vel-fb               <=  hm2_5i24.0.encoder.02.velocity
-net z-pos-fb               =>  joint.2.motor-pos-fb
+#net z-pos-mtr <=  hm2_5i24.0.encoder.05.position
+#net z-vel-mtr <=  hm2_5i24.0.encoder.05.velocity
+#net z-index-enable    joint.2.index-enable  <=>  hm2_5i24.0.encoder.05.index-enable
+#net z-pos-mtr  =>  joint.2.motor-pos-fb
+
+net z-pos-lin <= hm2_5i24.0.encoder.02.position
+net z-vel-lin <= hm2_5i24.0.encoder.02.velocity
 net z-index-enable    joint.2.index-enable  <=>  hm2_5i24.0.encoder.02.index-enable
-net z-pos-rawcounts        <=  hm2_5i24.0.encoder.02.rawcounts
-
-
-# ---setup home / limit switch signals---
-
-net z-home-sw     =>  joint.2.home-sw-in
-net z-neg-limit     =>  joint.2.neg-lim-sw-in
-net z-pos-limit     =>  joint.2.pos-lim-sw-in
+net z-pos-lin  =>  joint.2.motor-pos-fb
 
 #*******************
 #  SPINDLE
