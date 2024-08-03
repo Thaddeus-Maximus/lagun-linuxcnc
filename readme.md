@@ -6,9 +6,9 @@
 - [x] enable signals wired
 - [x] enable signals programmed
 - [ ] calibration of xyz
-- [ ] tighten z bracket
-- [ ] is there a btter way to do dual PID?
+- [x] tighten z bracket
+- [x] is there a btter way to do dual PID?
 - [ ] wire front control panel
-- [ ] get AXIS how I want it, or some other ui
-- [ ] handwheel
-- [ ] 
+- [x] get AXIS how I want it, or some other ui
+- [x] handwheel
+- [ ] cable management
