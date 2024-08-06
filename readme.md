@@ -12,3 +12,7 @@
 - [x] get AXIS how I want it, or some other ui
 - [x] handwheel
 - [ ] cable management
+
+https://www.scorchworks.com/Fengrave/fengrave.html
+https://www.estlcam.de/
+https://www.grzsoftware.com/
