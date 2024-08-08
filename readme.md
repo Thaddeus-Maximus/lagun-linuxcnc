@@ -21,3 +21,8 @@
 - [ ] pendant buttons
 - [ ] holders for wrenches etc
 - [ ] permanent good fix for z axis bracket
+
+# CAM
+https://www.scorchworks.com/Fengrave/fengrave.html
+https://www.estlcam.de/
+https://www.grzsoftware.com/
