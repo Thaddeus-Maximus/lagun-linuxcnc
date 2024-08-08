@@ -128,7 +128,7 @@ FF1 = 0.6
 FF2 = 0
 
 P_LIN = 300
-I_LIN = 2000
+I_LIN = 4000
 D_LIN = 0
 
 BIAS = 0
@@ -178,7 +178,7 @@ FF1 = 0.6
 FF2 = 0
 
 P_LIN = 400
-I_LIN = 2000
+I_LIN = 4000
 D_LIN = 0
 
 BIAS = 0
@@ -243,7 +243,7 @@ HOME_SEQUENCE = 1
 OUTPUT_SCALE = -1
 OUTPUT_OFFSET = 0
 
-ENCODER_LIN_SCALE = -9862
+ENCODER_LIN_SCALE = -10075
 #******************************************
 
 [SPINDLE_0]

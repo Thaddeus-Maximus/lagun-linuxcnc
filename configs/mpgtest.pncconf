@@ -136,11 +136,11 @@
   <property type="int" name="encoder_wormdriven" value="203602"/>
   <property type="int" name="encoder_wormdriver" value="203603"/>
   <property type="int" name="encoderline" value="203599"/>
-  <property type="bool" name="externalfo" value="True"/>
+  <property type="bool" name="externalfo" value="False"/>
   <property type="bool" name="externaljog" value="False"/>
-  <property type="bool" name="externalmpg" value="True"/>
-  <property type="bool" name="externalmvo" value="True"/>
-  <property type="bool" name="externalso" value="True"/>
+  <property type="bool" name="externalmpg" value="False"/>
+  <property type="bool" name="externalmvo" value="False"/>
+  <property type="bool" name="externalso" value="False"/>
   <property type="float" name="floatsin" value="10.0"/>
   <property type="float" name="floatsout" value="10.0"/>
   <property type="bool" name="fo_usempg" value="True"/>
@@ -235,7 +235,7 @@
   <property type="string" name="halui_cmd7" value=""/>
   <property type="string" name="halui_cmd8" value=""/>
   <property type="string" name="halui_cmd9" value=""/>
-  <property type="string" name="help" value="help-realtime.txt"/>
+  <property type="string" name="help" value="help-mesa.txt"/>
   <property type="bool" name="homeboth" value="False"/>
   <property type="bool" name="homeindex" value="False"/>
   <property type="bool" name="homenone" value="True"/>
@@ -267,7 +267,7 @@
   <property type="string" name="joycmdypos" value=""/>
   <property type="string" name="joycmdzneg" value=""/>
   <property type="string" name="joycmdzpos" value=""/>
-  <property type="bool" name="joystickjog" value="False"/>
+  <property type="bool" name="joystickjog" value="True"/>
   <property type="float" name="joystickjograpidrate0" value="0.1"/>
   <property type="float" name="joystickjograpidrate1" value="1.0"/>
   <property type="float" name="joystickjograpidrate2" value="10.0"/>
