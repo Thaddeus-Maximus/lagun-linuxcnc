@@ -1,0 +1,80 @@
+#<_clearance> = .01
+#<_od> = 1.55
+#<_pocketd> = 1.0
+#<_pocketz> = 0.45
+#<_id> = .63
+#<_td> = .25
+#<_tab_height> = .125
+#<_z_clearance> = 0.7
+#<_z_thru> = -0.01
+#<_z_start> = 0.55
+#<_z_feed> = 10.0
+#<_xy_feed> = 10.0
+#<_angle_offset> = 15.0
+
+#<_xspacing> = [COS[30] * [#<_td>+#<_od>+#<_clearance>]]
+#<_yspacing> = [SIN[30] * [#<_td>+#<_od>+#<_clearance>] * 2]
+
+#<_xstart> = 0.85
+#<_ystart> = 0.85
+
+o100 sub
+	G54
+	G90.1 ; absolute arc distance
+
+	(inner bore)
+	G0 X#1 Y[#2+#<_id>/2 - #<_td>/2] Z[#<_z_clearance>] ; goto inner
+	G0 Z[#<_z_start>]
+	G3 F[#<_xy_feed>] I#1 J#2 X#1 Y[#2+#<_id>/2 - #<_td>/2] P4 Z#<_z_thru> ; helix inner
+	G0 Z[#<_z_clearance>] ; retract inner
+
+	(inner pocket)
+	G0 X#1 Y[#2+#<_pocketd>/2 - #<_td>/2] Z[#<_z_start>]
+	G1 F[#<_z_feed>] Z[#<_pocketz>]
+	G3 F[#<_xy_feed>] I#1 J#2 X#1 Y[#2+#<_pocketd>/2 - #<_td>/2]
+	G0 Z[#<_z_clearance>]
+
+
+	(outer cut, with tabs)
+	G0 Z#<_z_clearance> X#1 Y[#2+#<_od>/2 + #<_td>/2] ; goto outer
+	G0 Z[#<_z_start>]
+
+	#<orad> = [#<_od>/2 + #<_td>/2]
+
+	#<angle> = 90
+	G3 F[#<_xy_feed>] I#1 J#2 X[#1+#<orad>*COS[#<angle>-#<_angle_offset>]] Y[#2+#<orad>*SIN[#<angle>-#<_angle_offset>]] P3 Z[#<_tab_height>] ; helix inner
+	G3 F[#<_xy_feed>] I#1 J#2 X[#1+#<orad>*COS[#<angle>+#<_angle_offset>]] Y[#2+#<orad>*SIN[#<angle>+#<_angle_offset>]]
+	G1 F[#<_z_feed>] Z[#<_z_thru>]
+
+	o101 repeat [6]
+
+		#<angle> = [#<angle>+60]
+		G3 F[#<_xy_feed>] I#1 J#2 X[#1+#<orad>*COS[#<angle>-#<_angle_offset>]] Y[#2+#<orad>*SIN[#<angle>-#<_angle_offset>]]
+		G1 F[#<_z_feed>] Z[#<_tab_height>]
+		G3 F[#<_xy_feed>] I#1 J#2 X[#1+#<orad>*COS[#<angle>+#<_angle_offset>]] Y[#2+#<orad>*SIN[#<angle>+#<_angle_offset>]]
+		G1 F[#<_z_feed>] Z[#<_z_thru>]
+
+	o101 endrepeat
+
+	G0 Z[#<_z_clearance>] ; retract inner
+
+	#<angle> = 0
+	G1 F[#<_z_feed>] Z[0.5-#<_tab_height>]
+
+o100 endsub
+
+#<_ix> = 0
+o201 while [#<_ix> LT 4]
+	#<_iy> = 0
+	o202 while [#<_iy> LT 3]
+		o203 if [[#<_ix> MOD 2] EQ 0]
+			o100 call [#<_xstart>+#<_ix>*#<_xspacing>] [#<_ystart>+#<_iy>*#<_yspacing>]
+		o203 else
+			o100 call [#<_xstart>+#<_ix>*#<_xspacing>] [#<_ystart>+#<_iy>*#<_yspacing>+#<_yspacing>/2]
+		o203 endif
+		#<_iy> = [#<_iy>+1]
+	o202 endwhile
+	#<_ix> = [#<_ix>+1]
+o201 endwhile
+
+M2 (Program End)
