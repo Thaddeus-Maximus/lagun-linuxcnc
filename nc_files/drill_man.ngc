@@ -1,0 +1,8 @@
+o<drill_man> sub
+
+	G0 X#1 Y#2
+	M0
+
+o<drill_man> endsub
+
+M2

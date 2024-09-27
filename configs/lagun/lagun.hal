@@ -8,7 +8,12 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JO
 loadrt hostmot2
 loadrt hm2_pci config="num_encoders=6 num_pwmgens=6" 
 loadrt mux16 names=jogincr,foincr,mvoincr,soincr
+loadrt mux2 count=1
 loadrt sum2 count=3
+
+loadrt logic count=1 personality=0x0102
+addf logic.0 servo-thread
+addf mux2.0 servo-thread
 
 addf sum2.0 servo-thread
 addf sum2.1 servo-thread
@@ -92,7 +97,7 @@ setp   hm2_5i24.0.pwmgen.00.offset-mode 1
 
 net x-output                             => hm2_5i24.0.pwmgen.00.value
 net x-enable     joint.0.amp-enable-out  => hm2_5i24.0.pwmgen.00.enable
-net x-enable =>  hm2_5i24.0.gpio.040.out
+net x-enable =>  hm2_5i24.0.gpio.042.out
 net x-pos-rawcounts        <=  hm2_5i24.0.encoder.00.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -171,7 +176,7 @@ setp   hm2_5i24.0.pwmgen.02.offset-mode 1
 
 net y-output                             => hm2_5i24.0.pwmgen.02.value
 net y-enable     joint.1.amp-enable-out  => hm2_5i24.0.pwmgen.02.enable
-net y-enable => hm2_5i24.0.gpio.042.out
+net y-enable => hm2_5i24.0.gpio.044.out
 net y-pos-rawcounts        <=  hm2_5i24.0.encoder.01.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -230,7 +235,18 @@ setp   pid.zl.deadband  [JOINT_2]DEADBAND
 setp   pid.zl.maxoutput [JOINT_2]MAX_OUTPUT
 setp   pid.zl.error-previous-target true
 
-net z-enable        => pid.zl.enable
+net z-override      => logic.0.in-00
+net z-enable        => logic.0.in-01
+net z-enable-comb   <= logic.0.and
+
+# this section about ferror doesnt work
+net z-enable-comb => mux2.0.sel
+setp mux2.0.in0 100
+setp mux2.0.in1 0.2
+net z-ferror <= mux2.0.out
+#net z-ferror => ini.2.min_ferror #joint.2.f-error #ini.2.ferror
+
+net z-enable-comb   => pid.zl.enable
 net z-pos-lin       => pid.zl.feedback
 net z-output-lin    <= pid.zl.output
 
@@ -249,8 +265,8 @@ setp   hm2_5i24.0.pwmgen.04.scale  [JOINT_2]OUTPUT_SCALE
 setp   hm2_5i24.0.pwmgen.04.offset-mode 1
 
 net z-output                             => hm2_5i24.0.pwmgen.04.value
-net z-enable     joint.2.amp-enable-out  => hm2_5i24.0.pwmgen.04.enable
-net z-enable => hm2_5i24.0.gpio.044.out
+net z-enable joint.2.amp-enable-out  => hm2_5i24.0.pwmgen.04.enable
+net z-enable-comb => hm2_5i24.0.gpio.040.out
 net z-pos-rawcounts        <=  hm2_5i24.0.encoder.02.rawcounts
 
 # ---Encoder feedback signals/setup---

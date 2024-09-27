@@ -1,0 +1,11 @@
+
+M102
+
+o<drill_man> call [2.0] [3.0]
+o<drill_man> call [1.0] [0.5]
+o<drill_man> call [1.5] [-1.]
+o<drill_man> call [0] [0]
+
+M101
+
+M2

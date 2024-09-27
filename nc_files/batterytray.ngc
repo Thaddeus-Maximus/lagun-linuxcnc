@@ -2,12 +2,12 @@
 #<_bottom_z>  = -0.2
 #<_thru_z>    = -0.52
 #<_start_z>   = 0.05
-#<_feed_z>    = 20.0
-#<_feed_xy>   = 30.0
+#<_feed_z>    = 40.0
+#<_feed_xy>   = 60.0
 
 #<_diam_t1>   = 0.375
 
-#<_pocket_w> = 10.5
+#<_pocket_w> = 10.125
 #<_pocket_h> = 6.375
 
 #<_outer_w>  = 11.75
