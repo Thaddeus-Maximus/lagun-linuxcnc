@@ -57,8 +57,16 @@ setp hm2_5i24.0.gpio.029.is_output false # ESTOP
 setp hm2_5i24.0.gpio.030.is_output false # START
 setp hm2_5i24.0.gpio.031.is_output false # STOP
 
-net machine_estop_out <= hm2_5i24.0.gpio.029.in_not
-net machine_estop_out => halui.machine.on
+#net machine_estop_out <= hm2_5i24.0.gpio.029.in_not
+#net machine_estop_out => halui.machine.on
+
+net btn-estop-out hm2_5i24.0.gpio.029.in_not => halui.machine.on
+net btn-estop-in  hm2_5i24.0.gpio.029.in     => halui.machine.off
+
+net btn-pause hm2_5i24.0.gpio.031.in_not => halui.program.pause
+net btn-start hm2_5i24.0.gpio.030.in_not => halui.program.run
+net btn-start hm2_5i24.0.gpio.030.in_not => halui.program.resume
+
 
 # first ADC
 setp hm2_5i24.0.gpio.032.is_output false
