@@ -15,6 +15,9 @@ loadrt logic count=1 personality=0x0102
 addf logic.0 servo-thread
 addf mux2.0 servo-thread
 
+loadrt weighted_sum wsum_sizes=8 #wsum_sizes=[128,64,32,16,8,4,2,1] # default should do conversion??
+addf process_wsums servo-thread
+
 addf sum2.0 servo-thread
 addf sum2.1 servo-thread
 addf sum2.2 servo-thread
@@ -39,13 +42,53 @@ addf pid.zl.do-pid-calcs       servo-thread
 addf pid.s.do-pid-calcs       servo-thread
 addf hm2_5i24.0.write         servo-thread
 
+# relay outputs
+setp hm2_5i24.0.gpio.025.is_output true
+setp hm2_5i24.0.gpio.026.is_output true
+setp hm2_5i24.0.gpio.024.is_output true
+setp hm2_5i24.0.gpio.025.invert_output false
+setp hm2_5i24.0.gpio.026.invert_output false
+setp hm2_5i24.0.gpio.024.invert_output false
 
-setp hm2_5i24.0.gpio.040.is_output true
-setp hm2_5i24.0.gpio.042.is_output true
-setp hm2_5i24.0.gpio.044.is_output true
-setp hm2_5i24.0.gpio.040.invert_output true
-setp hm2_5i24.0.gpio.042.invert_output true
-setp hm2_5i24.0.gpio.044.invert_output true
+# some inputs
+setp hm2_5i24.0.gpio.027.is_output false
+setp hm2_5i24.0.gpio.028.is_output false 
+setp hm2_5i24.0.gpio.029.is_output false # ESTOP
+setp hm2_5i24.0.gpio.030.is_output false # START
+setp hm2_5i24.0.gpio.031.is_output false # STOP
+
+net machine_estop_out <= hm2_5i24.0.gpio.029.in_not
+net machine_estop_out => halui.machine.on
+
+# first ADC
+setp hm2_5i24.0.gpio.032.is_output false
+setp hm2_5i24.0.gpio.033.is_output false
+setp hm2_5i24.0.gpio.034.is_output false
+setp hm2_5i24.0.gpio.035.is_output false
+setp hm2_5i24.0.gpio.036.is_output false
+setp hm2_5i24.0.gpio.037.is_output false
+setp hm2_5i24.0.gpio.038.is_output false
+setp hm2_5i24.0.gpio.039.is_output false
+
+# second ADC
+setp hm2_5i24.0.gpio.040.is_output false
+setp hm2_5i24.0.gpio.041.is_output false
+setp hm2_5i24.0.gpio.042.is_output false
+setp hm2_5i24.0.gpio.043.is_output false
+setp hm2_5i24.0.gpio.044.is_output false
+setp hm2_5i24.0.gpio.045.is_output false
+setp hm2_5i24.0.gpio.046.is_output false
+setp hm2_5i24.0.gpio.047.is_output false
+
+
+net hm2_5i24.0.gpio.032 <= wsum.0.bit.0.in
+net hm2_5i24.0.gpio.033 <= wsum.0.bit.1.in
+net hm2_5i24.0.gpio.034 <= wsum.0.bit.2.in
+net hm2_5i24.0.gpio.035 <= wsum.0.bit.3.in
+net hm2_5i24.0.gpio.036 <= wsum.0.bit.4.in
+net hm2_5i24.0.gpio.037 <= wsum.0.bit.5.in
+net hm2_5i24.0.gpio.038 <= wsum.0.bit.6.in
+net hm2_5i24.0.gpio.039 <= wsum.0.bit.7.in
 
 # ******************
 #   AXIS X JOINT 0
@@ -97,7 +140,7 @@ setp   hm2_5i24.0.pwmgen.00.offset-mode 1
 
 net x-output                             => hm2_5i24.0.pwmgen.00.value
 net x-enable     joint.0.amp-enable-out  => hm2_5i24.0.pwmgen.00.enable
-net x-enable =>  hm2_5i24.0.gpio.042.out
+net x-enable =>  hm2_5i24.0.gpio.026.out
 net x-pos-rawcounts        <=  hm2_5i24.0.encoder.00.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -176,7 +219,7 @@ setp   hm2_5i24.0.pwmgen.02.offset-mode 1
 
 net y-output                             => hm2_5i24.0.pwmgen.02.value
 net y-enable     joint.1.amp-enable-out  => hm2_5i24.0.pwmgen.02.enable
-net y-enable => hm2_5i24.0.gpio.044.out
+# net y-enable => hm2_5i24.0.gpio.026.out # commented out because duplicates x axis
 net y-pos-rawcounts        <=  hm2_5i24.0.encoder.01.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -239,6 +282,8 @@ net z-override      => logic.0.in-00
 net z-enable        => logic.0.in-01
 net z-enable-comb   <= logic.0.and
 
+sets z-override TRUE
+
 # this section about ferror doesnt work
 net z-enable-comb => mux2.0.sel
 setp mux2.0.in0 100
@@ -266,7 +311,7 @@ setp   hm2_5i24.0.pwmgen.04.offset-mode 1
 
 net z-output                             => hm2_5i24.0.pwmgen.04.value
 net z-enable joint.2.amp-enable-out  => hm2_5i24.0.pwmgen.04.enable
-net z-enable-comb => hm2_5i24.0.gpio.040.out
+net z-enable-comb => hm2_5i24.0.gpio.025.out
 net z-pos-rawcounts        <=  hm2_5i24.0.encoder.02.rawcounts
 
 # ---Encoder feedback signals/setup---
@@ -320,6 +365,7 @@ net machine-is-enabled        <=  motion.motion-enabled
 
 net estop-out     <=  iocontrol.0.user-enable-out
 net estop-out     =>  iocontrol.0.emc-enable-in
+
 
 #  ---manual tool change signals---
 

@@ -1,0 +1,14 @@
+o<drill> sub
+
+	G0 Z0
+	G0 X#1 Y#2
+	G0 Z#3
+
+	G1 F#5 Z#4
+
+
+	G0 Z0
+
+o<drill> endsub
+
+M2
