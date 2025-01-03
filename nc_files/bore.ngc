@@ -1,4 +1,5 @@
 o<bore> sub
+	; x, y, d, stepdown, zstart, zend
 	G90
 	G91.1
 
