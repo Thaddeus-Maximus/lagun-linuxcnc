@@ -8,13 +8,10 @@
 (drill 2)
 
 G90
-M03 S24000
+
 G00 Z0.5
 
 (No. 9: Part 1)
-M05
-M00 (Change tool: End mill 1/4)
-M03
 G00 X-0.12500 Y-2.42555 Z0.5
 G00 Z0.01969
 G01 Z0.00000 F30.00 S2000
