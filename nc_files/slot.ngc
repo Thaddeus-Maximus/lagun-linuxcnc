@@ -1,0 +1,41 @@
+o<slot> sub
+	; x1, y1, x2, y2, wd, zstart, zend, fin
+
+	G10 L0 ; re-read tool data
+	G90	  ; absolute x,y,z
+	G90.1 ; absolute i,j,k
+	M101  ; enable Z-axis (M102 disables)
+	G17   ; select XY plane for arcs
+
+	#<a> = ATAN[#4-#2]/[#3-#1]
+
+	G0 X#1 Y#2
+	G0 Z#5
+	G1 Z#6
+	G1 X#3 Y#4
+
+	
+	#<r> = [[#5-#5410]/2]
+
+	o101 if [#8 GT 0.0]
+	G1 X[#3 +[SIN[#<a>]*[#<r>-#8]] Y[#4 -[COS[#<a>]*[#<r>-#8]]			; point 1
+	G3 X[#3 -[SIN[#<a>]*[#<r>-#8]] Y[#4 +[COS[#<a>]*[#<r>-#8]] I#3 J#4  ; point 2
+	G1 X[#1 -[SIN[#<a>]*[#<r>-#8]] Y[#2 +[COS[#<a>]*[#<r>-#8]]          ; point 3
+	G3 X[#1 +[SIN[#<a>]*[#<r>-#8]] Y[#2 -[COS[#<a>]*[#<r>-#8]] I#1 J#2  ; point 4
+	G1 X[#3 +[SIN[#<a>]*[#<r>-#8]] Y[#4 -[COS[#<a>]*[#<r>-#8]]			; point 1
+	o101 endif
+
+	G1 X[#3 +[SIN[#<a>]*[#<r>]] Y[#4 -[COS[#<a>]*[#<r>]]			; point 1
+	G3 X[#3 -[SIN[#<a>]*[#<r>]] Y[#4 +[COS[#<a>]*[#<r>]] I#3 J#4 	; point 2
+	G1 X[#1 -[SIN[#<a>]*[#<r>]] Y[#2 +[COS[#<a>]*[#<r>]]          	; point 3
+	G3 X[#1 +[SIN[#<a>]*[#<r>]] Y[#2 -[COS[#<a>]*[#<r>]] I#1 J#2  	; point 4
+	G1 X[#3 +[SIN[#<a>]*[#<r>]] Y[#4 -[COS[#<a>]*[#<r>]]			; point 1
+
+	G0 X#3 Y#4
+	G0 Z#5
+
+
+
+o<bore> endsub
+
+M2
