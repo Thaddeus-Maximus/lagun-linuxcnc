@@ -3,10 +3,10 @@ o<frame_rect> sub
 	; modes:
 	; 1: CCW inside  pocket
 	; 2: CW  inside  pocket
-	; 3: CW outside pocket
-	; 4: CCW  outside pocket
+	; 3: CCW outside pocket
+	; 4: CW  outside pocket
 
-	;G10 L0 ; re-read tool data
+	G10 L0 ; re-read tool data
 	G90	  ; absolute x,y,z
 	G91.1 ; incremental i,j,k
 	M101  ; enable Z-axis (M102 disables)
@@ -14,14 +14,14 @@ o<frame_rect> sub
 
 	#<minx> = #1
 	#<maxx> = #3
-	o103 if [#3 LT #1]
+	o103 if [#3 GT #1]
 		#<minx> = #3
 		#<maxx> = #1
 	o103 endif
 
 	#<miny> = #2
 	#<maxy> = #4
-	o104 if [#4 LT #2]
+	o104 if [#4 GT #2]
 		#<miny> = #4
 		#<maxy> = #2
 	o104 endif
@@ -62,29 +62,6 @@ o<frame_rect> sub
 		G0 Z#5
 
 	o102 elseif [#7 EQ 3]
-		; plunge at corner
-		G0 X[#<minx>-#5410/2] Y[#<miny>-#5410/2]
-		G0 Z#5
-		G1 Z#6
-
-		o113 if [#8 GT 0]
-			G1 Y[#<maxy>-#8]
-			G2 X[#<minx>+#8] Y[#<maxy>+#5410/2] J0 I[+#8+#5410/2]
-			G1 X[#<maxx>-#8]
-			G2 Y[#<maxy>-#8] X[#<maxx>+#5410/2] I0 J[-#8-#5410/2]
-			G1 Y[#<miny>+#8]
-			G2 X[#<maxx>-#8] Y[#<miny>-#5410/2] J0 I[-#8-#5410/2]
-			G1 X[#<minx>+#8]
-			G2 Y[#<miny>+#8] X[#<minx>-#5410/2] I0 J[+#8+#5410/2]
-
-		o113 else
-			G1 Y[#<maxy>+#5410/2]
-			G1 X[#<maxx>+#5410/2]
-			G1 Y[#<miny>-#5410/2]
-			G1 X[#<minx>-#5410/2]
-		o113 endif
-
-		G0 Z#5
 
 	o102 elseif [#7 EQ 4]
 
