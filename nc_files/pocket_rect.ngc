@@ -29,6 +29,9 @@ o<pocket_rect> sub
 		#<stepover> = [#<td>*0.4]
 	o3 endif
 
+	#<z_down> = #6
+	#<z_lift> = [#6+#<td>*0.1]
+
 	#<minx> = #1
 	#<maxx> = #3
 	o11 if [#3 LT #1]
@@ -120,17 +123,69 @@ o<pocket_rect> sub
 		o110 endif
 	o105 endwhile
 
-	o200 while [#<r> LE 3]
-		#<a> = [#<a>+1] ; next angle
+;	o200 while [#<r> LE 3]
+;		#<a> = [#<a>+1] ; next angle
+;
+;
+;		o201 if [[[COS[#<a>]*#<r> GE -#<dx>/2] AND [COS[#<a>]*#<r> LE #<dx>/2]] AND [[SIN[#<a>]*#<r> GE -#<dy>/2] AND [SIN[#<a>]*#<r> LE #<dy>/2]]]
+;			G1 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>]
+;		o201 endif
+;
+;		#<a> = [#<a>+0.5] ; next angle
+;		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
+;	o200 endwhile
+
+	#<ix> = 0
+	#<lastxx> = 0
+	#<run> = 1
+	o202 while [#<run>]
+		G0 Z#<z_lift>
+		G0 X#<cx> Y[#<cy> - #<dy>/2]
+		G1 Z#<z_down>
+
+		#<n_end> = FUP[sqrt[[#<ix>]**2 + [#<dy>/2]**2]/#<stepover>]
+		#<a> = ATAN[-#<dy>/2]/[#<ix>]
+		#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+		#<r> = [#<dy>/2]
+		o200 while [#<r> LT #<r_end>]
+			G1 X[#<cx>+#<ix>] Y[#<cy>-#<dy>/2]
+			#<ix> = [#<ix> + 0.01]
+			#<a> = ATAN[-#<dy>/2]/[#<ix>]
+			#<r> = sqrt[[#<ix>]**2 + [#<dy>/2]**2]
+			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+			;#<r_end> = [FUP[sqrt[[#<ix>]**2 + [#<dy>/2]**2]/#<stepover>]*#<stepover>]
+
+			o204 if [#<ix> GT #<dx>/2]
+				#<run> = 0
+				o200 BREAK
+			o204 endif
+		o200 endwhile
+
+		#<lastx> = [COS[#<a>]*#<r>]
+
+		o201 while [SIN[#<a>]*#<r> LT #<dy>/2]
+			#<xtmp> = [COS[#<a>]*#<r>]
+			o205 if [#<xtmp> GT #<dx>/2]
+				#<xtmp> = [#<dx>/2]
+			o205 endif
+			G1 X[#<cx>+#<xtmp>] Y[#<cy>+SIN[#<a>]*#<r>]
+
+			#<a> = [#<a> + 1]
+			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+
+			
+		o201 endwhile
 
 
-		o201 if [[[COS[#<a>]*#<r> GE -#<dx>/2] AND [COS[#<a>]*#<r> LE #<dx>/2]] AND [[SIN[#<a>]*#<r> GE -#<dy>/2] AND [SIN[#<a>]*#<r> LE #<dy>/2]]]
-			G1 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>]
-		o201 endif
+		G1 X[#<cx>+#<lastxx>] Y[#<cy>+#<dy>/2]
 
-		#<a> = [#<a>+0.5] ; next angle
-		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
-	o200 endwhile
+		G0 Z#<z_lift>
+		G0 X[#<cx>+#<lastx>] Y[#<cy>-#<dy>/2]
+
+		#<ix> = #<lastx>
+		#<lastxx> = [COS[#<a>]*#<r>]
+	o202 endwhile
+
 
 
 	G0 Z#<z_clearance>
