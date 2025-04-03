@@ -1,12 +1,13 @@
 o<pocket_circ> sub
-	; x1, y1, d, zstart, zend, fincut, mode
-	; #1  #2  #3   #4     #5    #6      #7
+	; x1, y1, d, stepover, zstart, zend, fincut, mode
+	; #1  #2  #3     #4      #5     #6    #7      #8
 	; modes:
 	;  0: CCW, helical plunge
 	;  1: CW,  helical plunge
 	;  2: CCW, straight plunge
 	;  3: CW,  straight plunge
 
+	;G10 L0 ; re-read tool data
 	G90	  ; absolute x,y,z
 	G90.1 ; absolute i,j,k
 	M101  ; enable Z-axis (M102 disables)
@@ -16,32 +17,26 @@ o<pocket_circ> sub
 	o1 if [EXISTS[#<_z_clearance>]]
 		#<z_clearance> = #<_z_clearance>
 	o1 else
-		#<z_clearance> = #4
+		#<z_clearance> = #5
 	o1 endif
 	o2 if [EXISTS[#<_rampang>]]
 		#<rampang> = #<_rampang>
 	o2 else
 		#<rampang> = 5 ; degrees
 	o2 endif
-	o3 if [EXISTS[#<_stepover>]]
-		#<stepover> = #<_stepover>
-	o3 else
-		#<stepover> = [#<td>*0.4]
-	o3 endif
 
-
-	o100 if [[#7 EQ 0] OR [#7 EQ 1]] ; helical plunge
+	o100 if [[#8 EQ 0] OR [#8 EQ 1]] ; helical plunge
 		#<r> = [#<td>*0.3]
 		#<z_step>  = [#<r>*2*3.14*TAN[#<rampang>]]
 
 		G0 Z#<z_clearance>
 		G0 X[#1+#<r>] Y[#2]
-		G0 Z#4
+		G0 Z#5
 
 		; helical plunge
-		#<z> = [#4-#<z_step>]
-		o101 while [#<z> GT #5]
-			o102 if [#7 EQ 0]
+		#<z> = [#5-#<z_step>]
+		o101 while [#<z> GT #6]
+			o102 if [#8 EQ 0]
 				G3 X[#1+#<r>] Y[#2] I[#1] J[#2] Z[#<z>] P1
 			o102 else
 				G2 X[#1+#<r>] Y[#2] I[#1] J[#2] Z[#<z>] P1
@@ -50,43 +45,43 @@ o<pocket_circ> sub
 		o101 endwhile
 
 		; finish the helical plunge
-		#<a> = [[#<z>-#5]/#4*360]
-		o103 if [#7 EQ 0]
-			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2] Z[#5]
-			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2] Z[#5]
+		#<a> = [[#<z>-#6]/#5*360]
+		o103 if [#8 EQ 0]
+			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2] Z[#6]
+			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2] Z[#6]
 		o103 else
-			G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2] Z[#5]
-			G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2] Z[#5]
+			G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2] Z[#6]
+			G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2] Z[#6]
 		o103 endif
 
-	o100 elseif [[#7 EQ 2] OR [#7 EQ 3]] ; straight plunge
+	o100 elseif [[#8 EQ 2] OR [#8 EQ 3]] ; straight plunge
 		#<r> = 0
 
-		G0 Z#4
+		G0 Z#5
 		G0 X[#1] Y[#2]
-		G1 Z[#5]
+		G1 Z[#6]
 
 	o100 endif
 
 	; do the spiral :)
 	#<r_base> = #<r>
 	#<a_base> = #<a>
-	o105 while [#<r> LT [[#3-#<td>]/2-#6]]
+	o105 while [#<r> LT [[#3-#<td>]/2-#7]]
 
-		o106 if [[#7 MOD 2] EQ 0]
+		o106 if [[#8 MOD 2] EQ 0]
 			G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
 		o106 else
 			G1 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>]
 		o106 endif
 		#<a> = [#<a>+1] ; next angle
 
-		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
+		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#4] ; compute the radius accordingly
 	o105 endwhile
 
 	; pre-finish cut
-	o104 if [#6 GT 0.0]
-		#<r> = [[#3-#<td>]/2-#6]
-		o107 if [[#7 MOD 2] EQ 0]
+	o104 if [#7 GT 0.0]
+		#<r> = [[#3-#<td>]/2-#7]
+		o107 if [[#8 MOD 2] EQ 0]
 			G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
 			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2]
 		o107 else
@@ -97,7 +92,7 @@ o<pocket_circ> sub
 
 	; finish cut
 	#<r> = [[#3-#<td>]/2]
-	o108 if [[#7 MOD 2] EQ 0]
+	o108 if [[#8 MOD 2] EQ 0]
 		G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
 		G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2]
 		#<r> = [[#3-#<td>]/2*0.9]
