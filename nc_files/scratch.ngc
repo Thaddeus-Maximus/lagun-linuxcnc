@@ -1,4 +1,4 @@
-#<_z_clearance> = 0.0
+#<_z_clearance> = 1.0
 #<_rampang>     = 5
 
 G10 L1 P1 Z0.0 R0.125 ; set tool P1 to Z-offset Z0.0 and radius R0.25
@@ -11,12 +11,6 @@ G54  ; fixture #1
 
 F5.0 ; feedrate
 
-;o<pocket_circ> call [1][1] [2] [0.05][-0.1] [0.00] [0]
-;o<pocket_circ> call [3][3] [1.5] [0.05][-0.1] [0.01] [1]
-
-o<pocket_rect> call [0][0] [4][2] [-0.3][-0.6] [0.00]
-
-;o<drill_man_retract> call [4] [1]
-;o<drill> call [4] [2] [0.0] [-0.2] [0.15]
+o<frame_circ> call [0][0] [1.2] [0.3][0.0] [2]
 
 M2 ; end program

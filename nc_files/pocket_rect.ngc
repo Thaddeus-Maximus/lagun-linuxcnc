@@ -1,3 +1,17 @@
+#<a> = 0
+#<z> = 0
+#<td> = 0
+#<z_clearance> = 0
+#<rampang> = 0
+#<z_down>  = 0 
+#<z_lift>  = 0
+#<minx> = 0
+#<maxx> = 0
+#<cx> = 0
+#<cy> = 0
+#<rx> = 0
+#<ry> = 0
+
 o<pocket_rect> sub
 	; x1, y1, x2, y2, zstart, zend, fincut, mode
 	; #1  #2  #3  #4   #5      #6     #7     #8
@@ -48,20 +62,14 @@ o<pocket_rect> sub
 
 	#<cx> = [[#<minx>+#<maxx>]/2]
 	#<cy> = [[#<miny>+#<maxy>]/2]
-	#<dx> = [[#<maxx>-#<minx>]-#<td>]
-	#<dy> = [[#<maxy>-#<miny>]-#<td>]
+	#<rx> = [[[#<maxx>-#<minx>]-#<td>]/2]
+	#<ry> = [[[#<maxy>-#<miny>]-#<td>]/2]
 
 	G0 X#<cx> Y#<cy>
-	G1 X[#<cx>+#<dx>/2] Y[#<cy>-#<dy>/2]
-	G1 X[#<cx>-#<dx>/2] Y[#<cy>-#<dy>/2]
-	G1 X[#<cx>-#<dx>/2] Y[#<cy>+#<dy>/2]
-	G1 X[#<cx>+#<dx>/2] Y[#<cy>+#<dy>/2]
-	#<dmin> = #<dx>
-	#<dmax> = #<dy>
-	o13 if [#<dmax> LT #<dmin>]
-		#<dmin> = #<dy>
-		#<dmax> = #<dx>
-	o13 endif
+	G1 X[#<cx>+#<rx>] Y[#<cy>-#<ry>]
+	G1 X[#<cx>-#<rx>] Y[#<cy>-#<ry>]
+	G1 X[#<cx>-#<rx>] Y[#<cy>+#<ry>]
+	G1 X[#<cx>+#<rx>] Y[#<cy>+#<ry>]
 
 	o100 if [[#8 EQ 0] OR [#8 EQ 1]] ; helical plunge
 		#<r> = [#<td>*0.3]
@@ -116,18 +124,25 @@ o<pocket_rect> sub
 		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
 
 
-		o110 if [ABS[COS[#<a>]*#<r>] GE [#<dx>/2-#7]]
+		o110 if [ABS[COS[#<a>]*#<r>] GE [#<rx>-#7]]
+			; hit the x limit, y is still 'unbounded'
 			o105 BREAK
-		o110 elseif [ABS[SIN[#<a>]*#<r>] GE [#<dy>/2-#7]]
+		o110 elseif [ABS[SIN[#<a>]*#<r>] GE [#<ry>-#7]]
+			; hit the y limit, x is still 'unbounded'
 			o105 BREAK
 		o110 endif
 	o105 endwhile
+
+	; okay, let's run until we hit a limit
+	; then based on which limit was hit, run in the perp. direction
+	; then go into the negative of that direction
+	; subroutines might be the best way to do this??
 
 ;	o200 while [#<r> LE 3]
 ;		#<a> = [#<a>+1] ; next angle
 ;
 ;
-;		o201 if [[[COS[#<a>]*#<r> GE -#<dx>/2] AND [COS[#<a>]*#<r> LE #<dx>/2]] AND [[SIN[#<a>]*#<r> GE -#<dy>/2] AND [SIN[#<a>]*#<r> LE #<dy>/2]]]
+;		o201 if [[[COS[#<a>]*#<r> GE -#<rx>] AND [COS[#<a>]*#<r> LE #<rx>]] AND [[SIN[#<a>]*#<r> GE -#<ry>] AND [SIN[#<a>]*#<r> LE #<ry>]]]
 ;			G1 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>]
 ;		o201 endif
 ;
@@ -135,56 +150,9 @@ o<pocket_rect> sub
 ;		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
 ;	o200 endwhile
 
-	#<ix> = 0
-	#<lastxx> = 0
-	#<run> = 1
-	o202 while [#<run>]
-		G0 Z#<z_lift>
-		G0 X#<cx> Y[#<cy> - #<dy>/2]
-		G1 Z#<z_down>
+	
 
-		#<n_end> = FUP[sqrt[[#<ix>]**2 + [#<dy>/2]**2]/#<stepover>]
-		#<a> = ATAN[-#<dy>/2]/[#<ix>]
-		#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
-		#<r> = [#<dy>/2]
-		o200 while [#<r> LT #<r_end>]
-			G1 X[#<cx>+#<ix>] Y[#<cy>-#<dy>/2]
-			#<ix> = [#<ix> + 0.01]
-			#<a> = ATAN[-#<dy>/2]/[#<ix>]
-			#<r> = sqrt[[#<ix>]**2 + [#<dy>/2]**2]
-			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
-			;#<r_end> = [FUP[sqrt[[#<ix>]**2 + [#<dy>/2]**2]/#<stepover>]*#<stepover>]
-
-			o204 if [#<ix> GT #<dx>/2]
-				#<run> = 0
-				o200 BREAK
-			o204 endif
-		o200 endwhile
-
-		#<lastx> = [COS[#<a>]*#<r>]
-
-		o201 while [SIN[#<a>]*#<r> LT #<dy>/2]
-			#<xtmp> = [COS[#<a>]*#<r>]
-			o205 if [#<xtmp> GT #<dx>/2]
-				#<xtmp> = [#<dx>/2]
-			o205 endif
-			G1 X[#<cx>+#<xtmp>] Y[#<cy>+SIN[#<a>]*#<r>]
-
-			#<a> = [#<a> + 1]
-			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
-
-			
-		o201 endwhile
-
-
-		G1 X[#<cx>+#<lastxx>] Y[#<cy>+#<dy>/2]
-
-		G0 Z#<z_lift>
-		G0 X[#<cx>+#<lastx>] Y[#<cy>-#<dy>/2]
-
-		#<ix> = #<lastx>
-		#<lastxx> = [COS[#<a>]*#<r>]
-	o202 endwhile
+	o<xp> call
 
 
 
@@ -192,5 +160,60 @@ o<pocket_rect> sub
 
 
 o<pocket_rect> endsub
+
+; if you can come up with a closed-form solution for x*sin(x) = c, you could drastically streamline this code. Until then... Lots of g1s.
+
+o<xp> sub
+		#<ix> = 0
+		#<lastxx> = 0
+		#<run> = 1
+		o202 while [#<run>]
+			G0 Z#<z_lift>
+			G0 X#<cx> Y[#<cy> - #<ry>]
+			G1 Z#<z_down>
+
+			#<n_end> = FUP[sqrt[[#<ix>]**2 + [#<ry>]**2]/#<stepover>]
+			#<a> = ATAN[-#<ry>]/[#<ix>]
+			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+			#<r> = [#<ry>]
+			o200 while [#<r> LT #<r_end>]
+				G1 X[#<cx>+#<ix>] Y[#<cy>-#<ry>]
+				#<ix> = [#<ix> + 0.01]
+				#<a> = ATAN[-#<ry>]/[#<ix>]
+				#<r> = sqrt[[#<ix>]**2 + [#<ry>]**2]
+				#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+				;#<r_end> = [FUP[sqrt[[#<ix>]**2 + [#<ry>]**2]/#<stepover>]*#<stepover>]
+
+				o204 if [#<ix> GT #<rx>]
+					#<run> = 0
+					o200 BREAK
+				o204 endif
+			o200 endwhile
+
+			#<lastx> = [COS[#<a>]*#<r>]
+
+			o201 while [SIN[#<a>]*#<r> LT #<ry>]
+				#<xtmp> = [COS[#<a>]*#<r>]
+				o205 if [#<xtmp> GT #<rx>]
+					#<xtmp> = [#<rx>]
+				o205 endif
+				G1 X[#<cx>+#<xtmp>] Y[#<cy>+SIN[#<a>]*#<r>]
+
+				#<a> = [#<a> + 1]
+				#<r> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+
+				
+			o201 endwhile
+
+
+			G1 X[#<cx>+#<lastxx>] Y[#<cy>+#<ry>]
+
+			G0 Z#<z_lift>
+			G0 X[#<cx>+#<lastx>] Y[#<cy>-#<ry>]
+
+			#<ix> = #<lastx>
+			#<lastxx> = [COS[#<a>]*#<r>]
+		o202 endwhile
+	o<xp> endsub
 
 M2
