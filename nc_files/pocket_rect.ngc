@@ -1,0 +1,196 @@
+o<pocket_rect> sub
+	; x1, y1, x2, y2, zstart, zend, fincut, mode
+	; #1  #2  #3  #4   #5      #6     #7     #8
+	; modes:
+	;  0: CCW, ramped plunge
+	;  1: CW,  ramped plunge
+	;  2: CCW, straight plunge
+	;  3: CW,  straight plunge
+
+	G90	  ; absolute x,y,z
+	G90.1 ; absolute i,j,k
+	M101  ; enable Z-axis (M102 disables)
+	G17   ; select XY plane for arcs
+
+	#<td> = #5410
+	o1 if [EXISTS[#<_z_clearance>]]
+		#<z_clearance> = #<_z_clearance>
+	o1 else
+		#<z_clearance> = #5
+	o1 endif
+	o2 if [EXISTS[#<_rampang>]]
+		#<rampang> = #<_rampang>
+	o2 else
+		#<rampang> = 5 ; degrees
+	o2 endif
+	o3 if [EXISTS[#<_stepover>]]
+		#<stepover> = #<_stepover>
+	o3 else
+		#<stepover> = [#<td>*0.4]
+	o3 endif
+
+	#<z_down> = #6
+	#<z_lift> = [#6+#<td>*0.1]
+
+	#<minx> = #1
+	#<maxx> = #3
+	o11 if [#3 LT #1]
+		#<minx> = #3
+		#<maxx> = #1
+	o11 endif
+
+	#<miny> = #2
+	#<maxy> = #4
+	o12 if [#4 LT #2]
+		#<miny> = #4
+		#<maxy> = #2
+	o12 endif
+
+	#<cx> = [[#<minx>+#<maxx>]/2]
+	#<cy> = [[#<miny>+#<maxy>]/2]
+	#<dx> = [[#<maxx>-#<minx>]-#<td>]
+	#<dy> = [[#<maxy>-#<miny>]-#<td>]
+
+	G0 X#<cx> Y#<cy>
+	G1 X[#<cx>+#<dx>/2] Y[#<cy>-#<dy>/2]
+	G1 X[#<cx>-#<dx>/2] Y[#<cy>-#<dy>/2]
+	G1 X[#<cx>-#<dx>/2] Y[#<cy>+#<dy>/2]
+	G1 X[#<cx>+#<dx>/2] Y[#<cy>+#<dy>/2]
+	#<dmin> = #<dx>
+	#<dmax> = #<dy>
+	o13 if [#<dmax> LT #<dmin>]
+		#<dmin> = #<dy>
+		#<dmax> = #<dx>
+	o13 endif
+
+	o100 if [[#8 EQ 0] OR [#8 EQ 1]] ; helical plunge
+		#<r> = [#<td>*0.3]
+		#<z_step>  = [#<r>*2*3.14*TAN[#<rampang>]]
+
+		G0 Z#<z_clearance>
+		G0 X[#<cx>+#<r>] Y[#<cy>]
+		G0 Z#5
+
+		; helical plunge
+		#<z> = [#5-#<z_step>]
+		o101 while [#<z> GT #6]
+			o102 if [#8 EQ 0]
+				G3 X[#<cx>+#<r>] Y[#<cy>] I[#<cx>] J[#<cy>] Z[#<z>] P1
+			o102 else
+				G2 X[#<cx>+#<r>] Y[#<cy>] I[#<cx>] J[#<cy>] Z[#<z>] P1
+			o102 endif
+			#<z> = [#<z> - #<z_step>]
+		o101 endwhile
+
+		; finish the helical plunge
+		#<a> = [[#<z>-#6]/#5*360]
+		o103 if [#8 EQ 0]
+			G3 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>] I[#<cx>] J[#<cy>] Z[#6]
+			G3 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>] I[#<cx>] J[#<cy>] Z[#6]
+		o103 else
+			G2 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>-SIN[#<a>]*#<r>] I[#<cx>] J[#<cy>] Z[#6]
+			G2 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>-SIN[#<a>]*#<r>] I[#<cx>] J[#<cy>] Z[#6]
+		o103 endif
+
+	o100 elseif [[#8 EQ 2] OR [#8 EQ 3]] ; straight plunge
+		#<r> = 0
+
+		G0 Z#5
+		G0 X[#<cx>] Y[#<cy>]
+		G1 Z[#6]
+
+	o100 endif
+
+	; do the spiral :)
+	#<r_base> = #<r>
+	#<a_base> = #<a>
+	o105 while [1]
+
+		o106 if [[#8 MOD 2] EQ 0]
+			G1 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>]
+		o106 else
+			G1 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>-SIN[#<a>]*#<r>]
+		o106 endif
+		
+		#<a> = [#<a>+1] ; next angle
+		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
+
+
+		o110 if [ABS[COS[#<a>]*#<r>] GE [#<dx>/2-#7]]
+			o105 BREAK
+		o110 elseif [ABS[SIN[#<a>]*#<r>] GE [#<dy>/2-#7]]
+			o105 BREAK
+		o110 endif
+	o105 endwhile
+
+;	o200 while [#<r> LE 3]
+;		#<a> = [#<a>+1] ; next angle
+;
+;
+;		o201 if [[[COS[#<a>]*#<r> GE -#<dx>/2] AND [COS[#<a>]*#<r> LE #<dx>/2]] AND [[SIN[#<a>]*#<r> GE -#<dy>/2] AND [SIN[#<a>]*#<r> LE #<dy>/2]]]
+;			G1 X[#<cx>+COS[#<a>]*#<r>] Y[#<cy>+SIN[#<a>]*#<r>]
+;		o201 endif
+;
+;		#<a> = [#<a>+0.5] ; next angle
+;		#<r> = [#<r_base>+[#<a>-#<a_base>]/360*#<stepover>] ; compute the radius accordingly
+;	o200 endwhile
+
+	#<ix> = 0
+	#<lastxx> = 0
+	#<run> = 1
+	o202 while [#<run>]
+		G0 Z#<z_lift>
+		G0 X#<cx> Y[#<cy> - #<dy>/2]
+		G1 Z#<z_down>
+
+		#<n_end> = FUP[sqrt[[#<ix>]**2 + [#<dy>/2]**2]/#<stepover>]
+		#<a> = ATAN[-#<dy>/2]/[#<ix>]
+		#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+		#<r> = [#<dy>/2]
+		o200 while [#<r> LT #<r_end>]
+			G1 X[#<cx>+#<ix>] Y[#<cy>-#<dy>/2]
+			#<ix> = [#<ix> + 0.01]
+			#<a> = ATAN[-#<dy>/2]/[#<ix>]
+			#<r> = sqrt[[#<ix>]**2 + [#<dy>/2]**2]
+			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+			;#<r_end> = [FUP[sqrt[[#<ix>]**2 + [#<dy>/2]**2]/#<stepover>]*#<stepover>]
+
+			o204 if [#<ix> GT #<dx>/2]
+				#<run> = 0
+				o200 BREAK
+			o204 endif
+		o200 endwhile
+
+		#<lastx> = [COS[#<a>]*#<r>]
+
+		o201 while [SIN[#<a>]*#<r> LT #<dy>/2]
+			#<xtmp> = [COS[#<a>]*#<r>]
+			o205 if [#<xtmp> GT #<dx>/2]
+				#<xtmp> = [#<dx>/2]
+			o205 endif
+			G1 X[#<cx>+#<xtmp>] Y[#<cy>+SIN[#<a>]*#<r>]
+
+			#<a> = [#<a> + 1]
+			#<r_end> = [#<n_end>*#<stepover> + #<r_base>+[#<a>-#<a_base>]/360*#<stepover>]
+
+			
+		o201 endwhile
+
+
+		G1 X[#<cx>+#<lastxx>] Y[#<cy>+#<dy>/2]
+
+		G0 Z#<z_lift>
+		G0 X[#<cx>+#<lastx>] Y[#<cy>-#<dy>/2]
+
+		#<ix> = #<lastx>
+		#<lastxx> = [COS[#<a>]*#<r>]
+	o202 endwhile
+
+
+
+	G0 Z#<z_clearance>
+
+
+o<pocket_rect> endsub
+
+M2
