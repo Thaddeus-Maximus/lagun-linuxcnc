@@ -32,6 +32,10 @@ o<pocket_circ> sub
 
 	o100 if [[#7 EQ 0] OR [#7 EQ 1]] ; helical plunge
 		#<r> = [#<td>*0.3]
+		o115 if [[[#3-#<td>]/2-#6] LE #<r>]
+			#<r> = [[[#3-#<td>]/2-#6]*0.8]
+		o115 endif
+
 		#<z_step>  = [#<r>*2*3.14*TAN[#<rampang>]]
 
 		G0 Z#<z_clearance>
