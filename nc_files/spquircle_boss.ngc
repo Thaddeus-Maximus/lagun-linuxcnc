@@ -34,7 +34,8 @@ o<spquircle_boss> sub
 
 
 	G0 X[#1 + #4/2 + #<tr> + #7 + #<n_steps_total>*#<stepover>] Y[#2 + #4/2 + #<tr> + #7 + #<n_steps_total>*#<stepover>]
-	G1 Z#5
+	G0 Z#5
+	G1 Z#6
 	G1 Y[#2]
 
 	o30 while [#<n_steps> GE 0]
