@@ -162,6 +162,8 @@ o<pocket_rect> sub
 o<pocket_rect> endsub
 
 ; if you can come up with a closed-form solution for x*sin(x) = c, you could drastically streamline this code. Until then... Lots of g1s.
+; idea: bias the main spiral. then you're left with a section to hog out
+; idea 2: make angle arbitrary (blowing up the code so it's not x-y specific). That'll be fun.
 
 o<xp> sub
 		#<ix> = 0
