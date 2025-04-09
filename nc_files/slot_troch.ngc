@@ -1,0 +1,49 @@
+o<slot_troch> sub
+	; [x1][y1] [x2][y2] [width] [zs][ze] [fincut] [mode]
+
+	o<helical_plunge> call [#1][#2] [#5] [#6][#7] [#8]
+
+	;G10 L0 ; re-read tool data
+	G90	  ; absolute x,y,z
+	G90.1 ; absolute i,j,k
+	M101  ; enable Z-axis (M102 disables)
+	G17   ; select XY plane for arcs
+
+	#<td> = #5410
+	#<tr> = [#<td>/2]
+	o1 if [EXISTS[#<_z_clearance>]]
+		#<z_clearance> = #<_z_clearance>
+	o1 else
+		#<z_clearance> = #4
+	o1 endif
+	o2 if [EXISTS[#<_rampang>]]
+		#<rampang> = #<_rampang>
+	o2 else
+		#<rampang> = 5 ; degrees
+	o2 endif
+	o3 if [EXISTS[#<_stepover>]]
+		#<stepover> = #<_stepover>
+	o3 else
+		#<stepover> = [#<td>*0.4]
+	o3 endif
+
+	; compute angle of slot
+	#<a> = ATAN[#4-#2]/[#3-#1]
+
+	; finish helical plunge, end up at startpoint for trochoid
+	; run the trochoid, keep running until at end
+	; finish the slot
+
+
+o<slot_troch> endsub
+
+F5
+o<slot> call [0] [-0.0] [0] [-0.0-0.3] [0.33] [0.1] [-0.15]
+o<slot> call [0] [-1.5] [0] [-1.5-0.3] [0.33] [0.1] [-0.15]
+o<slot> call [0] [-3.0] [0] [-3.0-0.3] [0.33] [0.1] [-0.15]
+;o<slot> call [0] [-4.5] [0] [-4.5-0.3] [0.33] [0.1] [-0.15]
+;o<slot> call [0] [-6.0] [0] [-6.0-0.3] [0.33] [0.1] [-0.15]
+
+
+
+M2
