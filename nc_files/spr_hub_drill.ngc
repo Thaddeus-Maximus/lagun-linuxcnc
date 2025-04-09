@@ -11,7 +11,7 @@ G54  ; fixture #1
 
 F5.0 ; feedrate
 
-#<d> = [80/SQRT(2)/2/25.4]
+#<d> = [80/SQRT[2]/2/25.4]
 
 o<drill_man> call [0][0]
 o<drill_man> call [-#<d>][-#<d>]
