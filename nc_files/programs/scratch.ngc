@@ -1,6 +1,8 @@
 #<_z_clearance> = 1.0
 #<_rampang>     = 10
 
+;#<_overlap> = 0
+
 ; +1: Conventional milling
 ; +2: Both-ways milling
 ; +4: Plunge entry
@@ -21,6 +23,6 @@ F20
 ;o<spquircle_boss> call [6][4] [3] [1] [0.1][-0.5] [0.01] [0]
 ;o<slot_troch> call [-1][1.2] [-.1][0.75] [0.625] [0.1][-0.5] [0.01] [0+1]
 
-o<cope_angle> call [0] [1] [3][1] [30] [0.1][-.5] [.01] [0]
+o<cope_angle> call [2] [0] [3][1] [30] [0.1][-.5] [.01] [0]
 
 M2 ; end program
