@@ -1,3 +1,15 @@
+# Modes
+Default mode (0) is:
+- Climb milling
+- One-way milling
+- Helix entry
+- Inside
+
++1: Conventional milling
++2: Both-ways milling
++4: Plunge entry
++8: Outside
+
 # Typical Header
 ```
 #<_z_clearance> = 0.0 ; clearance height
