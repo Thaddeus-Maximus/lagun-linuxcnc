@@ -1,4 +1,4 @@
-#<_z_clearance> = 1.0
+#<_z_clearance> = -0.1
 #<_rampang>     = 10
 
 ;#<_overlap> = 0
@@ -23,6 +23,9 @@ F20
 ;o<spquircle_boss> call [6][4] [3] [1] [0.1][-0.5] [0.01] [0]
 ;o<slot_troch> call [-1][1.2] [-.1][0.75] [0.625] [0.1][-0.5] [0.01] [0+1]
 
-o<cope_angle> call [2] [0] [3][1] [30] [0.1][-.5] [.01] [0]
+;o<cope_angle> call [2] [0] [3][1] [0] [-0.3][-.5] [0.1] [0]
+
+;o<end_round> call [-90] [1][0] [2] [0.1][-.5] [.1] [0]
+o<end_cope> call [0] [1][0] [2] [0.1][-.5] [.01] [0+1]
 
 M2 ; end program
