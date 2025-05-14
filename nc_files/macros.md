@@ -10,6 +10,10 @@ Default mode (0) is:
 +4: Plunge entry
 +8: Outside
 
+# Fun stuff
+
+Specifying a negative finish cut should cause macros to do all the roughing and leave the (positive) amount of material behind for a separate finishing op.
+
 # Typical Header
 ```
 #<_z_clearance> = 0.0 ; clearance height
