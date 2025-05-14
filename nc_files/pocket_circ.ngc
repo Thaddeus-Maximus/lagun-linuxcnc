@@ -1,14 +1,14 @@
 o<pocket_circ> sub
 	; o<pocket_circ> call [x][y] [diameter] [ztop][zbot] [finishcut] [mode]
 
-	#<M_CONVENTIONAL> = [FIX[#6/1] MOD 2 EQ 1]
-	#<M_BOTHWAYS>     = [FIX[#6/2] MOD 2 EQ 1]
-	#<M_PLUNGE>       = [FIX[#6/4] MOD 2 EQ 1]
-	#<M_OUTSIDE>      = [FIX[#6/8] MOD 2 EQ 1]
-	#<M_CLIMB>        = [FIX[#6/1] MOD 2 EQ 0]
-	#<M_ONEWAY>       = [FIX[#6/2] MOD 2 EQ 0]
-	#<M_HELIX>        = [FIX[#6/4] MOD 2 EQ 0]
-	#<M_INSIDE>       = [FIX[#6/8] MOD 2 EQ 0]
+	#<M_CONVENTIONAL> = [FIX[#7/1] MOD 2 EQ 1]
+	#<M_BOTHWAYS>     = [FIX[#7/2] MOD 2 EQ 1]
+	#<M_PLUNGE>       = [FIX[#7/4] MOD 2 EQ 1]
+	#<M_OUTSIDE>      = [FIX[#7/8] MOD 2 EQ 1]
+	#<M_CLIMB>        = [FIX[#7/1] MOD 2 EQ 0]
+	#<M_ONEWAY>       = [FIX[#7/2] MOD 2 EQ 0]
+	#<M_HELIX>        = [FIX[#7/4] MOD 2 EQ 0]
+	#<M_INSIDE>       = [FIX[#7/8] MOD 2 EQ 0]
 
 	G90	  ; absolute x,y,z
 	G90.1 ; absolute i,j,k
@@ -37,8 +37,8 @@ o<pocket_circ> sub
 	#<r> = 0
 	o100 if [#<M_HELIX>] ; helical plunge
 		#<r> = [#<td>*0.3]
-		o115 if [[[#3-#<td>]/2-#6] LE #<r>]
-			#<r> = [[[#3-#<td>]/2-#6]*0.8]
+		o115 if [[[#3-#<td>]/2-ABS[#6]] LE #<r>]
+			#<r> = [[[#3-#<td>]/2-ABS[#6]]*0.8]
 		o115 endif
 
 		#<z_step>  = [#<r>*2*3.14*TAN[#<rampang>]]
@@ -81,7 +81,7 @@ o<pocket_circ> sub
 	; do the spiral :)
 	#<r_base> = #<r>
 	#<a_base> = #<a>
-	o105 while [#<r> LT [[#3-#<td>]/2-#6]]
+	o105 while [#<r> LT [[#3-#<td>]/2-ABS[#6]]]
 
 		o106 if [#<M_CLIMB>]
 			G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
@@ -94,30 +94,30 @@ o<pocket_circ> sub
 	o105 endwhile
 
 	; pre-finish cut
-	o104 if [#6 GT 0.0]
-		#<r> = [[#3-#<td>]/2-#6]
-		o107 if [#<M_CLIMB>]
-			G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
-			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2]
-		o107 else
-			G1 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>]
-			G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2]
-		o107 endif
-	o104 endif
-
-	; finish cut
-	#<r> = [[#3-#<td>]/2]
-	o108 if [#<M_CLIMB>]
+	#<r> = [[#3-#<td>]/2-ABS[#6]]
+	o107 if [#<M_CLIMB>]
 		G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
 		G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2]
-		#<r> = [[#3-#<td>]/2*0.9]
-		G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
-	o108 else
+	o107 else
 		G1 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>]
 		G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2]
-		#<r> = [[#3-#<td>]/2*0.9]
-		G1 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>]
-	o108 endif
+	o107 endif
+
+	; finish cut
+	o104 if [ABS[#6] GT 0.0]
+		#<r> = [[#3-#<td>]/2]
+		o108 if [#<M_CLIMB>]
+			G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
+			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2]
+			#<r> = [[#3-#<td>]/2*0.9]
+			G1 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>]
+		o108 else
+			G1 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>]
+			G2 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>] I[#1] J[#2]
+			#<r> = [[#3-#<td>]/2*0.9]
+			G1 X[#1+COS[#<a>]*#<r>] Y[#2-SIN[#<a>]*#<r>]
+		o108 endif
+	o104 endif
 
 	G0 Z#<z_clearance>
 
