@@ -48,7 +48,7 @@ o<slot_chop> sub
 		#<l> = [#<l>+#<l_step>]
 	o200 endwhile
 	
-	#<r> = [[#5-#5410]/2]
+	#<r> = [[#5-#<td>]/2]
 
 	o100 if [#<M_CLIMB>]
 		o101 if [#8 GT 0]
