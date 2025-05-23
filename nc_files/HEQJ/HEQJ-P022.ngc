@@ -1,0 +1,35 @@
+#<_z_clearance> = 1.0
+#<_rampang>     = 5
+
+;#<_overlap> = 0
+
+; +1: Conventional milling
+; +2: Both-ways milling
+; +4: Plunge entry
+; +8: Outside
+
+
+G10 L1 P1 Z0.0 R[.125 /2] ; set tool
+T1   ; set tool to T1
+M06  ; manual toolchange
+G54  ; absolute coordinates
+F5   ; feedrate
+
+o<pocket_circ> [0.317][-0.508] [.165] [0.05][-0.18] [.002]
+o<pocket_circ> [1.183][-0.508] [.165] [0.05][-0.18] [.002]
+
+o<pocket_circ> [0.750][-0.508] [.130] [0.05][-0.18] [.002]
+o<pocket_circ> [0.750][-1.689] [.130] [0.05][-0.18] [.002]
+o<pocket_circ> [0.258][-1.492] [.130] [0.05][-0.18] [.002]
+o<pocket_circ> [1.242][-1.492] [.130] [0.05][-0.18] [.002]
+
+o<pocket_circ> [2.625][-1.000] [.200] [0.05][-0.18] [.002]
+o<pocket_circ> [4.000][-1.000] [.200] [0.05][-0.18] [.002]
+
+#1 = .010 ; finish cut
+o<frame_rect> [4.748+#1][-.265-#1] [5.578-#1][-1.735+#1] [0.05][-0.2]
+o<frame_rect> [4.748][-.265] [5.578][-1.735] [0.05][-0.2]
+
+
+
+M2 ; end program
