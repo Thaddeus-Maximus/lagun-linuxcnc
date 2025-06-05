@@ -1,0 +1,63 @@
+#<_z_clearance> = 0.4
+#<_rampang>     = 5
+
+;#<_overlap> = 0
+
+; +1: Conventional milling
+; +2: Both-ways milling
+; +4: Plunge entry
+; +8: Outside
+
+
+G21  ; mm
+G10 L1 P1 Z0.0 R5.0 ; set tool
+T1   ; set tool to T1
+M06  ; manual toolchange
+G54  ; absolute coordinates
+F3000  ; mm/min (300 mm/min = about 1 ft/min)
+
+#2 = 1
+
+; x positions
+#11 = 32.4
+#12 = 92.4
+#13 = 152.4
+#14 = 212.4
+#15 = 272.4
+
+o10 if [#2 EQ 1]
+
+	o101 sub ; an array
+		o<pocket_circle> call [#1][-10]        [9.0] [0.5][-5.0]
+		o<pocket_circle> call [#1 - 14.0][-26] [9.0] [0.5][-5.0]
+		o<pocket_circle> call [#1 + 14.0][-26] [9.0] [0.5][-5.0]
+		o<pocket_circle> call [#1 + 14.0][-54] [9.0] [0.5][-5.0]
+		o<pocket_circle> call [#1 - 14.0][-54] [9.0] [0.5][-5.0]
+
+		o<pocket_circle> call [#1][-10]        [5.2] [0.5][-14]
+		o<pocket_circle> call [#1 - 14.0][-26] [5.2] [0.5][-14]
+		o<pocket_circle> call [#1 + 14.0][-26] [5.2] [0.5][-14]
+		o<pocket_circle> call [#1 + 14.0][-54] [5.2] [0.5][-14]
+		o<pocket_circle> call [#1 - 14.0][-54] [5.2] [0.5][-14]
+	o101 endsub
+
+
+	o101 call [#11]
+	o101 call [#12]
+	o101 call [#13]
+	o101 call [#14]
+	o101 call [#15]
+o10 elseif [#2 EQ 2]
+	o102 sub
+		o<pocket_circle> call [#1][-70+40] [17.0] [0.5][-3.0] [0.1]
+		o<pocket_circle> call [#1][-70+40] [10.0] [-3.0][-14] [0.1]
+	o102 endsub
+
+	o102 call [#11]
+	o102 call [#12]
+	o102 call [#13]
+	o102 call [#14]
+	o102 call [#15]
+o10 endif
+
+M2 ; end program
