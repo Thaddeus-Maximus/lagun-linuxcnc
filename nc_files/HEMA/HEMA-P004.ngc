@@ -1,5 +1,6 @@
-#<_z_clearance> = 0.4
+#<_z_clearance> = 10
 #<_rampang>     = 5
+;#<_stepover>    = 2
 
 ;#<_overlap> = 0
 
@@ -10,11 +11,11 @@
 
 
 G21  ; mm
-G10 L1 P1 Z0.0 R5.0 ; set tool
+G10 L1 P1 Z0.0 R[3/16*25.4/2] ; set tool
 T1   ; set tool to T1
 M06  ; manual toolchange
 G54  ; absolute coordinates
-F3000  ; mm/min (300 mm/min = about 1 ft/min)
+F250  ; mm/min (300 mm/min = about 1 ft/min)
 
 #2 = 1
 
@@ -25,21 +26,30 @@ F3000  ; mm/min (300 mm/min = about 1 ft/min)
 #14 = 212.4
 #15 = 272.4
 
+o101 sub ; an array
+	o<pocket_circ> call [#1][-10]        [ 9.0] [0.5][-5.0] [0][+4]
+	o<pocket_circ> call [#1][-10] [5.2]       [0.5][-14] [0][+4]
+
+	o<pocket_circ> call [#1 - 14.0][-26] [10.7] [0.5][-6.0] [0][+4]
+	o<pocket_circ> call [#1 - 14.0][-26] [6.4] [0.5][-14] [0][+4]
+
+	o<pocket_circ> call [#1 + 14.0][-26] [10.7] [0.5][-6.0] [0][+4]
+	o<pocket_circ> call [#1 + 14.0][-26] [6.4] [0.5][-14] [0][+4]
+
+	o<pocket_circ> call [#1 + 14.0][-54] [10.7] [0.5][-6.0] [0][+4]
+	o<pocket_circ> call [#1 + 14.0][-54] [6.4] [0.5][-14] [0][+4]
+
+	o<pocket_circ> call [#1 - 14.0][-54] [10.7] [0.5][-6.0] [0][+4]
+	o<pocket_circ> call [#1 - 14.0][-54] [6.4] [0.5][-14] [0][+4]
+
+o101 endsub
+
+o103 sub
+	o<pocket_circ> call [#1][-68+40] [17.0] [0.5][-2.2] [0.1] [+4]
+	o<pocket_circ> call [#1][-68+40] [10.0] [-2.0][-14] [0.1] [+4]
+o103 endsub
+
 o10 if [#2 EQ 1]
-
-	o101 sub ; an array
-		o<pocket_circle> call [#1][-10]        [9.0] [0.5][-5.0]
-		o<pocket_circle> call [#1 - 14.0][-26] [9.0] [0.5][-5.0]
-		o<pocket_circle> call [#1 + 14.0][-26] [9.0] [0.5][-5.0]
-		o<pocket_circle> call [#1 + 14.0][-54] [9.0] [0.5][-5.0]
-		o<pocket_circle> call [#1 - 14.0][-54] [9.0] [0.5][-5.0]
-
-		o<pocket_circle> call [#1][-10]        [5.2] [0.5][-14]
-		o<pocket_circle> call [#1 - 14.0][-26] [5.2] [0.5][-14]
-		o<pocket_circle> call [#1 + 14.0][-26] [5.2] [0.5][-14]
-		o<pocket_circle> call [#1 + 14.0][-54] [5.2] [0.5][-14]
-		o<pocket_circle> call [#1 - 14.0][-54] [5.2] [0.5][-14]
-	o101 endsub
 
 
 	o101 call [#11]
@@ -47,17 +57,14 @@ o10 if [#2 EQ 1]
 	o101 call [#13]
 	o101 call [#14]
 	o101 call [#15]
-o10 elseif [#2 EQ 2]
-	o102 sub
-		o<pocket_circle> call [#1][-70+40] [17.0] [0.5][-3.0] [0.1]
-		o<pocket_circle> call [#1][-70+40] [10.0] [-3.0][-14] [0.1]
-	o102 endsub
+o10 else ;if [#2 EQ 2]
+	
 
-	o102 call [#11]
-	o102 call [#12]
-	o102 call [#13]
-	o102 call [#14]
-	o102 call [#15]
+	o103 call [#11]
+	o103 call [#12]
+	o103 call [#13]
+	o103 call [#14]
+	o103 call [#15]
 o10 endif
 
 M2 ; end program
