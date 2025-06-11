@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #<_z_clearance> = 10
+=======
+#<_z_clearance> = 20
+>>>>>>> ea1d3a4a1aa74e03c7a521a0202f87b8863d1750
 #<_rampang>     = 5
 ;#<_stepover>    = 2
 
@@ -57,8 +61,49 @@ o10 if [#2 EQ 1]
 	o101 call [#13]
 	o101 call [#14]
 	o101 call [#15]
-o10 else ;if [#2 EQ 2]
-	
+
+	#<tr> = [#5410/2]
+	#<ang> = 30
+	#<z>   = 0.2
+	#<endx> = 304.8
+
+	#<y> = [-70]
+	G0 X[-#<tr>-#<z>/TAN[#<ang>]*0.2] Y[#<y>]
+	G0 Z[-#<z>*1.2]
+
+	o103 while [#<y> LT 0]
+		G1 X[-#<tr>+#<z>/TAN[#<ang>]*1.2] Z[#<z>*0.2]
+		G0 Y[#<y>]
+		#<y> = [#<y>+2]
+
+		G1 X[-#<tr>-#<z>/TAN[#<ang>]*0.2] Z[-#<z>*1.2]
+		G0 Y[#<y>]
+		#<y> = [#<y>+2]
+
+	o103 endwhile
+	G0 Z[#<_z_clearance>]
+
+	#<y> = [-70]
+	G0 X[#<endx>+#<tr>+#<z>/TAN[#<ang>]*0.2] Y[#<y>]
+	G0 Z[-#<z>*1.2]
+
+	o104 while [#<y> LT 0]
+		G1 X[#<endx>+#<tr>-#<z>/TAN[#<ang>]*1.2] Z[#<z>*0.2]
+		G0 Y[#<y>]
+		#<y> = [#<y>+2]
+
+		G1 X[#<endx>+#<tr>+#<z>/TAN[#<ang>]*0.2] Z[-#<z>*1.2]
+		G0 Y[#<y>]
+		#<y> = [#<y>+2]
+
+	o104 endwhile
+	G0 Z[#<_z_clearance>]
+
+o10 elseif [#2 EQ 2]
+	o102 sub
+		o<pocket_circle> call [#1][-70+40] [17.0] [0.5][-3.0] [0.1]
+		o<pocket_circle> call [#1][-70+40] [10.0] [-3.0][-14] [0.1]
+	o102 endsub
 
 	o103 call [#11]
 	o103 call [#12]
