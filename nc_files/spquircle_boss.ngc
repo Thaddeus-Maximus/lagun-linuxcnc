@@ -74,9 +74,9 @@ o<spquircle_boss> sub
 	G1 X[#1+#4/2+#<tr>] Y[#2]
 	
 	o40 if [#<M_CONVENTIONAL>]
-		G2 X[#1+#4/2+#<tr>] Y[#2] I#1 J#2
-	o40 else
 		G3 X[#1+#4/2+#<tr>] Y[#2] I#1 J#2
+	o40 else
+		G2 X[#1+#4/2+#<tr>] Y[#2] I#1 J#2
 	o40 endif
 
 	

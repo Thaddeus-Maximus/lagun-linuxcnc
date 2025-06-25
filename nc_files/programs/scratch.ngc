@@ -1,31 +1,26 @@
-#<_z_clearance> = -0.1
-#<_rampang>     = 10
+#<_z_clearance> = 0.5
+#<_rampang>     = 5
+;#<_stepover>  = 0.08
 
 ;#<_overlap> = 0
 
+; mode refernce
 ; +1: Conventional milling
 ; +2: Both-ways milling
 ; +4: Plunge entry
 ; +8: Outside
 
 
-G10 L1 P1 Z0.0 R0.25 ; set tool P1 to Z-offset Z0.0 and radius R0.25
+G20  ; G21 mm / G20 inch
+G10 L1 P1 Z0.0 R[.25/2] ; set tool
 T1   ; set tool to T1
 M06  ; manual toolchange
+G54  ; absolute coordinates
+F12   ; inch or mm/min (300 mm/min = about 1 ft/min)
 
+o<face> call []
 
-G54  
-F20 
-
-;o<frame_rect> call [1][0.5] [4][5] [0.1][-0.5] [0+1] [.7]
-;o<frame_circ> call [7][1.25] [1.5] [0.1][-0.5] [0+8]
-;o<pocket_circ> call [5][1.25] [1.5] [0.1][-0.5] [0.01] [0+8]
-;o<spquircle_boss> call [6][4] [3] [1] [0.1][-0.5] [0.01] [0]
-;o<slot_troch> call [-1][1.2] [-.1][0.75] [0.625] [0.1][-0.5] [0.01] [0+1]
-
-;o<cope_angle> call [2] [0] [3][1] [0] [-0.3][-.5] [0.1] [0]
-
-;o<end_round> call [-90] [1][0] [2] [0.1][-.5] [.1] [0]
-o<end_cope> call [0] [1][0] [2] [0.1][-.5] [.01] [0+1]
+;o<pocket_circ> call [.394][0] [.44] [0.1][-0.25]
+;o<drill> call [.394][0] [-.2][-.6]
 
 M2 ; end program

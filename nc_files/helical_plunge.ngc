@@ -43,7 +43,7 @@ o<helical_plunge> sub
 	G0 Z#<z_clearance>
 
 	#<z_total> = [#4-#5]
-	#<turns>   = [#<z_total>/#<z_step>-0.001] ; subtract off an epsilon fixes some things...
+	#<turns>   = [#<z_total>/#<z_step>] ; subtract off an epsilon fixes some things...
 
 	#<a> = [[#<turns> MOD 1.0]*360]
 
