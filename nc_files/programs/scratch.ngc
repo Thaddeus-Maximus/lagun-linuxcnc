@@ -1,6 +1,6 @@
-#<_z_clearance> = 0.5
-#<_rampang>     = 5
-;#<_stepover>  = 0.08
+#<_z_clearance> = .5
+#<_rampang>     = 10
+;#<_stepover>  = 0.1
 
 ;#<_overlap> = 0
 
@@ -12,15 +12,32 @@
 
 
 G20  ; G21 mm / G20 inch
-G10 L1 P1 Z0.0 R[.25/2] ; set tool
+G10 L1 P1 Z0.0 R[1/4/2] ; set tool
 T1   ; set tool to T1
 M06  ; manual toolchange
 G54  ; absolute coordinates
-F12   ; inch or mm/min (300 mm/min = about 1 ft/min)
+F10  ; inch or mm/min (300 mm/min = about 1 ft/min)
 
-o<face> call []
+#<zt> = 0.02
+#<zb> = -0.16
 
-;o<pocket_circ> call [.394][0] [.44] [0.1][-0.25]
-;o<drill> call [.394][0] [-.2][-.6]
+o<m6cbore> sub
+
+	o<pocket_circ> call [#1][#2] [.40] [0.02][-0.24]
+	o<drill> call [#1][#2] [-.2][-.6]
+o<m6cbore> endsub
+
+o<m6cbore> call [0][0]
+o<m6cbore> call [0][-20/25.4]
+o<m6cbore> call [0][-40/25.4]
+o<m6cbore> call [0][-60/25.4]
+o<m6cbore> call [-20/25.4][0]
+o<m6cbore> call [-20/25.4][-20/25.4]
+o<m6cbore> call [-20/25.4][-40/25.4]
+o<m6cbore> call [-20/25.4][-60/25.4]
+o<m6cbore> call [+20/25.4][0]
+o<m6cbore> call [+20/25.4][-20/25.4]
+o<m6cbore> call [+20/25.4][-40/25.4]
+o<m6cbore> call [+20/25.4][-60/25.4]
 
 M2 ; end program

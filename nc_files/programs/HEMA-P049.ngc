@@ -1,0 +1,59 @@
+#<_z_clearance> = .5
+#<_rampang>     = 10
+;#<_stepover>  = 0.1
+
+;#<_overlap> = 0
+
+; mode refernce
+; +1: Conventional milling
+; +2: Both-ways milling
+; +4: Plunge entry
+; +8: Outside
+
+
+G20  ; G21 mm / G20 inch
+G10 L1 P1 Z0.0 R[3/16/2] ; set tool
+T1   ; set tool to T1
+M06  ; manual toolchange
+G54  ; absolute coordinates
+F10  ; inch or mm/min (300 mm/min = about 1 ft/min)
+
+#1 = 2
+
+#<d> = .474
+
+o10 if [#1 EQ 1]
+
+#<zt> = 0.02
+#<zb> = -0.20
+
+	o<pocket_circ> call [0.551][+1.5-.984] [#<d>] [#<zt>][#<zb>]
+	o<pocket_circ> call [0.709][+1.5-.433] [#<d>] [#<zt>][#<zb>]
+	o<pocket_circ> call [0.709][-1.5+.433] [#<d>] [#<zt>][#<zb>]
+	o<pocket_circ> call [0.551][-1.5+.984] [#<d>] [#<zt>][#<zb>]
+
+
+#<zt> = -0.15
+#<zb> = -0.40
+
+	o<pocket_circ> call [0.551][+1.5-.984] [#<d>] [#<zt>][#<zb>]
+	o<pocket_circ> call [0.709][+1.5-.433] [#<d>] [#<zt>][#<zb>]
+	o<pocket_circ> call [0.709][-1.5+.433] [#<d>] [#<zt>][#<zb>]
+	o<pocket_circ> call [0.551][-1.5+.984] [#<d>] [#<zt>][#<zb>]
+
+
+o10 elseif [#1 EQ 2]
+	o<drill_man> call [2.441][+1.5-0.315]
+	o<drill_man> call [2.441][+1.5-1.102]
+	o<drill_man> call [2.441][-1.5+1.102]
+	o<drill_man> call [2.441][-1.5+0.315]
+	o<drill_man> call [3.701][+1.5-0.315]
+	o<drill_man> call [3.701][+1.5-1.102]
+	o<drill_man> call [3.701][-1.5+1.102]
+	o<drill_man> call [3.701][-1.5+0.315]
+o10 endif
+
+
+
+
+M2 ; end program

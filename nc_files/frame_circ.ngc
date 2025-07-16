@@ -26,8 +26,8 @@ o<frame_circ> sub
 
 
 	#<r_entry> = #<tr>
-	o10 if [#<r_entry> GT #3*0.3]
-		#<r_entry> = [#3*0.3]
+	o10 if [#<r_entry> GT #3*0.15]
+		#<r_entry> = [#3*0.15]
 	o10 endif
 
 	G0 Z#<z_clearance>

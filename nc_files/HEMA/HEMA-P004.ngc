@@ -1,9 +1,8 @@
 <<<<<<< HEAD
 #<_z_clearance> = 10
 =======
-#<_z_clearance> = 20
->>>>>>> ea1d3a4a1aa74e03c7a521a0202f87b8863d1750
-#<_rampang>     = 5
+#<_z_clearance> = 0.4
+#<_rampang>     = 10
 ;#<_stepover>    = 2
 
 ;#<_overlap> = 0
@@ -14,14 +13,12 @@
 ; +8: Outside
 
 
-G21  ; mm
-G10 L1 P1 Z0.0 R[3/16*25.4/2] ; set tool
+G20  ; G21 mm, G20 in
+G10 L1 P1 Z0.0 R[.25/2] ; set tool
 T1   ; set tool to T1
 M06  ; manual toolchange
 G54  ; absolute coordinates
 F250  ; mm/min (300 mm/min = about 1 ft/min)
-
-#2 = 1
 
 ; x positions
 #11 = 32.4
@@ -29,6 +26,16 @@ F250  ; mm/min (300 mm/min = about 1 ft/min)
 #13 = 152.4
 #14 = 212.4
 #15 = 272.4
+
+o<m6cb> sub
+	o<pocket_circ> call [#1/25.4][#2/25.4] [0.40] [+.02][-.24] [0][+4]
+	o<pocket_circ> call [#1/25.4][#2/25.4] [0.24] [-.20][-.53] [0][+4]	
+o<m6cb> endsub
+
+o<m5cb> sub
+	o<pocket_circ> call [#1/25.4][#2/25.4] [0.35] [+.02][-.20] [0][+4]
+	o<pocket_circ> call [#1/25.4][#2/25.4] [0.20] [-.19][-.53] [0][+4]	
+o<m5cb> endsub
 
 o101 sub ; an array
 	o<pocket_circ> call [#1][-10]        [ 9.0] [0.5][-5.0] [0][+4]

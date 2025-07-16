@@ -33,6 +33,10 @@ o<pocket_circ> sub
 		#<stepover> = [#<td>*0.4]
 	o3 endif
 
+	o4 if [#<td> GT #3]
+		o5 return
+	o4 endif
+
 	#<a> = 0
 	#<r> = 0
 	o100 if [#<M_HELIX>] ; helical plunge
@@ -59,7 +63,7 @@ o<pocket_circ> sub
 		o101 endwhile
 
 		; finish the helical plunge
-		#<a> = [[#<z>-#5]/#4*360]
+		#<a> = [[#<z>-#5]/[#4-#5]*360] ; TODO: what the heck is the denominator here doing?
 		o103 if [#<M_CLIMB>]
 			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2] Z[#5]
 			G3 X[#1+COS[#<a>]*#<r>] Y[#2+SIN[#<a>]*#<r>] I[#1] J[#2] Z[#5]

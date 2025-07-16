@@ -53,7 +53,7 @@ o<face> sub
 	G0 Z#5
 	G1 Z#6
 
-	o100 while [#<y> LT [#<maxy>-#<tr>*0.8]]
+	o100 while [#<y> LT [#<maxy>]]
 
 		G1 Y#<y>
 
