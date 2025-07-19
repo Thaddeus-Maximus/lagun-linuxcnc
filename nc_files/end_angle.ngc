@@ -23,7 +23,7 @@ o<end_angle> sub
 	#<M_INSIDE>       = [FIX[#9/8] MOD 2 EQ 0]
 
 
-	#<td> = #5410
+	#<td> = #<_td>
 	#<tr> = [#<td>/2]
 	o1 if [EXISTS[#<_z_clearance>]]
 		#<z_clearance> = #<_z_clearance>
@@ -58,7 +58,7 @@ o<end_angle> sub
 	; - order of movement (O) = C NE A
 	; - sign of offsets   (S) = L
 
-	#<M_ANGLE> = [#5 GT 0]
+	#<M_ANGLE> = [#5 GE 0]
 	#<M_LEFT>  = [#1 EQ 0]
 	#<SW_B> = [#<M_LEFT>  XOR #<M_ANGLE>] ; use #<b>
 	#<SW_O> = [#<M_CLIMB> XOR #<M_ANGLE>] ; order of movement

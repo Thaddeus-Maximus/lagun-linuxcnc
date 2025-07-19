@@ -81,7 +81,7 @@ o10 if [#<side> EQ 1]
 	o<fside> call [+1]
 	o<fside> call [-1]
 
-	#<tr> = [#5410/2]
+	#<tr> = [#<_td>/2]
 
 	#<xe> = [605/25.4]
 	#<y> = [-2.9]
