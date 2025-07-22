@@ -1,0 +1,27 @@
+G21  ; G21 mm / G20 inch
+G54  ; absolute coordinates
+
+#<_z_clearance> = 10
+#<_rampang>     = 20
+#<_td> = 6.0
+
+; mode refernce
+; +1: Conventional milling
+; +2: Both-ways milling
+; +4: Plunge entry
+; +8: Outside
+
+F250  ; inch or mm/min (300 mm/min = about 1 ft/min)
+
+#<zt> = +1
+#<zb> = -10
+
+o<drill_man> call [ 5][-9]
+o<drill_man> call [45][-9]
+o<drill_man> call [68][-9]
+
+;o<pocket_circ> call [68][-9] [12.0] [1][-5]
+;o<pocket_circ> call [68][-9] [12.0] [-4][-10]
+
+
+M2 ; end program
